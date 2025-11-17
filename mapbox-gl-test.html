@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapbox GL JS Test</title>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.css' rel='stylesheet' />
+</head>
+
+<body>
+    <div id='map' style='width: 100vw; height: 100vh;'></div>
+
+    <script>
+        const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoiY2hyaXN3aG9uZ21hcGJveCIsImEiOiJjbDl6bzJ6N3EwMGczM3BudjZmbm5yOXFnIn0.lPhc5Z5H3byF_gf_Jz48Ug';
+
+        mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
+
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v12',
+            center: [-74.0060, 40.7128],
+            zoom: 11
+        });
+
+        map.on('load', () => {
+            // Create marker with popup using Mapbox GL CSS classes
+            const markerPopup = new mapboxgl.Popup({
+                closeOnClick: false,
+                className: 'mapboxgl-popup',
+                anchor: 'bottom-left'
+            })
+                .setHTML(`
+                            <strong>New York City</strong><br/>
+                            The Big Apple
+                `);
+
+            new mapboxgl.Marker()
+                .setLngLat([-74.0060, 40.7128])
+                .setPopup(markerPopup)
+                .addTo(map);
+
+            // Show marker popup immediately
+            markerPopup.addTo(map);
+
+            // Create standalone popup with close button (no marker)
+            const standalonePopup = new mapboxgl.Popup({
+                closeButton: true,
+                closeOnClick: false,
+                anchor: 'bottom'
+            })
+                .setLngLat([-74.0260, 40.7328])
+                .setHTML(`
+                    <strong>Standalone Popup</strong><br/>
+                    This popup exists independently<br/>
+                    <em>Click the × to close</em>
+                `)
+                .addTo(map);
+        });
+    </script>
+</body>
+
+</html>
