@@ -1,251 +1,1026 @@
-import React, { useState } from 'react';
-import './App.css';
-import { StaticMap, Marker, CustomMarker, CircleMarker, Popup } from './lib';
+import React from 'react';
+import CodeMirror from '@uiw/react-codemirror';
+import { javascript } from '@codemirror/lang-javascript';
+import { oneDark } from '@codemirror/theme-one-dark';
+import { StaticMap, Marker, Popup, CircleMarker } from './lib';
 
-// Replace with your Mapbox access token
-const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoiY2hyaXN3aG9uZ21hcGJveCIsImEiOiJjbDl6bzJ6N3EwMGczM3BudjZmbm5yOXFnIn0.lPhc5Z5H3byF_gf_Jz48Ug';
+// Replace this with your actual Mapbox access token
+const MAPBOX_ACCESS_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || 'your_mapbox_access_token_here';
 
-function App() {
-  const [popupVisible, setPopupVisible] = useState<string | null>(null);
+// Component for section headers
+interface SectionHeaderProps {
+  title: string;
+  description: string;
+}
 
-  const togglePopup = (id: string) => {
-    console.log('Marker clicked:', id);
-    setPopupVisible(popupVisible === id ? null : id);
+const SectionHeader: React.FC<SectionHeaderProps> = ({ title, description }) => (
+  <div style={{ marginTop: '48px', marginBottom: '32px' }}>
+    <h2 style={{ 
+      margin: '0 0 8px 0', 
+      fontSize: '2rem', 
+      fontWeight: 700,
+      color: '#212529'
+    }}>
+      {title}
+    </h2>
+    <p style={{ 
+      margin: 0, 
+      fontSize: '1.1rem', 
+      color: '#6c757d',
+      lineHeight: 1.5
+    }}>
+      {description}
+    </p>
+  </div>
+);
+
+// Component for individual examples
+interface ExampleProps {
+  title: string;
+  description: string;
+  category: string;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  code: string;
+  children: React.ReactNode;
+}
+
+const Example: React.FC<ExampleProps> = ({ 
+  title, 
+  description, 
+  category, 
+  difficulty, 
+  code, 
+  children 
+}) => {
+  const difficultyColors = {
+    beginner: '#28a745',
+    intermediate: '#ffc107',
+    advanced: '#dc3545'
   };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-      <h1>Mapbox Static Images React Library Demo</h1>
-      <p>
-        This demo showcases the StaticMap, Marker, and Popup components.
-        <br />
-        <strong>Note:</strong> You'll need to add your Mapbox access token to see the maps.
-      </p>
+    <div style={{
+      marginBottom: '32px',
+      border: '1px solid #e9ecef',
+      borderRadius: '8px',
+      overflow: 'hidden'
+    }}>
+      {/* Header */}
+      <div style={{
+        padding: '16px 20px',
+        backgroundColor: '#f8f9fa',
+        borderBottom: '1px solid #e9ecef'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'flex-start' }}>
+          <div style={{ flex: 1 }}>
+            <h3 style={{ margin: '0 0 4px 0', fontSize: '1.25rem', fontWeight: 600 }}>
+              {title}
+            </h3>
+            <p style={{ margin: '0 0 8px 0', fontSize: '0.95rem', color: '#6c757d' }}>
+              {description}
+            </p>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <span style={{
+                backgroundColor: difficultyColors[difficulty],
+                color: 'white',
+                padding: '2px 8px',
+                borderRadius: '12px',
+                fontSize: '0.75rem',
+                fontWeight: 500
+              }}>
+                {difficulty}
+              </span>
+              <span style={{
+                backgroundColor: '#6c757d',
+                color: 'white',
+                padding: '2px 8px',
+                borderRadius: '12px',
+                fontSize: '0.75rem',
+                fontWeight: 500
+              }}>
+                {category}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      <div style={{ display: 'grid', gap: '40px', marginTop: '40px' }}>
+      {/* 50/50 layout: Implementation left, Code right */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: '300px' }}>
+        {/* Implementation */}
+        <div style={{ padding: '20px', borderRight: '1px solid #e9ecef' }}>
+          {children}
+        </div>
+        
+        {/* Code */}
+        <div style={{ backgroundColor: '#2d3748' }}>
+          <CodeMirror
+            value={code}
+            theme={oneDark}
+            extensions={[javascript({ jsx: true })]}
+            editable={false}
+            basicSetup={{
+              lineNumbers: true,
+              foldGutter: false,
+              dropCursor: false,
+              allowMultipleSelections: false,
+              indentOnInput: false
+            }}
+            style={{
+              fontSize: '0.875rem',
+              fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace'
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
 
-        {/* Example 1: Center + Zoom with Default Markers */}
-        <div>
-          <h2>Example 1: Automatic Popup Management (NEW!)</h2>
-          <p>NYC area with popups as children of markers - no state management required!</p>
-          <div style={{ position: 'relative' }}>
-            <StaticMap
-              accessToken={MAPBOX_ACCESS_TOKEN}
-              mapStyle="mapbox/streets-v11"
-              center={{ lat: 40.7128, lng: -74.0060 }}
-              zoom={11}
-              size={{ width: 800, height: 500 }}
-              attribution={true}
-              style={{ border: '2px solid #ddd' }}
-            >
-              {/* Automatic popup management - just click the marker! */}
-              <Marker 
-                position={{ lat: 40.7589, lng: -73.9851 }}
-                color="#ff6b6b"
-                symbol="🏢"
-                scale={2}
-              >
-                <Popup
-                  offset={{ x: 0, y: 0 }}
-                  closeButton
-                  anchor="bottom-left"
-                >
-                  <strong>New York City</strong><br/>
-                  The Big Apple<br/>
-                  <em>Click marker to toggle - no state management needed!</em>
-                </Popup>
-              </Marker>
+export default function App() {
 
-              <Marker
-                position={{ lat: 40.6892, lng: -74.0445 }}
-                color="#4ecdc4"
-                symbol="🗽"
-                scale={1}
-              >
-                <Popup anchor="top" offset={{ x: 0, y: -15 }}>
-                  <strong>Statue of Liberty</strong><br />
-                  Liberty Island<br />
-                  <em>Automatically shows/hides on click!</em>
-                </Popup>
-              </Marker>
-
-              <Marker
-                position={{ lat: 40.7061, lng: -74.0089 }}
-                color="#ffa726"
-                symbol="⭐"
-                scale={0.7}
-              />
-            </StaticMap>
-            
-            
+  return (
+    <div style={{ 
+      padding: '40px 20px', 
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      maxWidth: '1400px',
+      margin: '0 auto'
+    }}>
+      <div>
+        {/* Header */}
+        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+          <h1 style={{ 
+            fontSize: '3rem', 
+            fontWeight: 700, 
+            margin: '0 0 16px 0',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text'
+          }}>
+            Mapbox Static React
+          </h1>
+          <p style={{ 
+            fontSize: '1.25rem', 
+            color: '#6c757d', 
+            margin: '0 0 24px 0',
+            maxWidth: '600px',
+            marginLeft: 'auto',
+            marginRight: 'auto',
+            lineHeight: 1.6
+          }}>
+            A comprehensive React library for creating beautiful static maps with markers, popups, and automatic interaction management.
+          </p>
+          <div style={{
+            display: 'inline-flex',
+            gap: '16px',
+            backgroundColor: '#e3f2fd',
+            padding: '16px 24px',
+            borderRadius: '8px',
+            borderLeft: '4px solid #2196f3'
+          }}>
+            <span style={{ fontSize: '1.5rem' }}>✨</span>
+            <div>
+              <strong style={{ color: '#1976d2' }}>New in v2.0:</strong> Automatic popup management! 
+              Simply add a Popup as a child of any Marker - no state management required.
+            </div>
           </div>
         </div>
 
-        {/* Example 2: Bounds with Custom Markers */}
-        <div>
-          <h2>Example 2: Mixed Pattern - Automatic and Manual Popups</h2>
-          <p>San Francisco Bay Area showing both automatic and manual popup patterns</p>
+        {/* StaticMap Examples */}
+        <SectionHeader 
+          title="StaticMap Examples" 
+          description="Learn the basics of creating static maps with different configurations"
+        />
+        
+        <Example
+          title="Basic Usage"
+          description="Simple map with center coordinates and zoom level"
+          category="StaticMap"
+          difficulty="beginner"
+          code={`<StaticMap
+  accessToken="YOUR_MAPBOX_TOKEN"
+  mapStyle="mapbox/streets-v12"
+  center={{ lat: 40.7128, lng: -74.0060 }}
+  zoom={12}
+  size={{ width: 400, height: 300 }}
+  attribution={true}
+  style={{ border: '1px solid #ccc', borderRadius: '8px' }}
+/>`}
+        >
           <StaticMap
             accessToken={MAPBOX_ACCESS_TOKEN}
-            mapStyle="mapbox/satellite-v9"
-            bounds={{
-              north: 37.8324,
-              south: 37.7076,
-              east: -122.3482,
-              west: -122.5200
-            }}
+            mapStyle="mapbox/streets-v12"
+            center={{ lat: 40.7128, lng: -74.0060 }}
+            zoom={12}
+            size={{ width: 400, height: 300 }}
+            attribution={true}
+            style={{ border: '1px solid #ccc', borderRadius: '8px' }}
+          />
+        </Example>
+        
+        <Example
+          title="Different Map Styles"
+          description="Showcase different Mapbox map styles in a grid layout"
+          category="StaticMap"
+          difficulty="beginner"
+          code={`<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
+  <div>
+    <h5>Streets</h5>
+    <StaticMap
+      accessToken={MAPBOX_ACCESS_TOKEN}
+      mapStyle="mapbox/streets-v12"
+      center={{ lat: 40.7128, lng: -74.0060 }}
+      zoom={12}
+      size={{ width: 250, height: 180 }}
+      attribution={true}
+      style={{ border: '1px solid #ccc', borderRadius: '6px' }}
+    />
+  </div>
+  <div>
+    <h5>Satellite</h5>
+    <StaticMap
+      accessToken={MAPBOX_ACCESS_TOKEN}
+      mapStyle="mapbox/satellite-v9"
+      center={{ lat: 40.7128, lng: -74.0060 }}
+      zoom={12}
+      size={{ width: 250, height: 180 }}
+      attribution={true}
+      style={{ border: '1px solid #ccc', borderRadius: '6px' }}
+    />
+  </div>
+  <div>
+    <h5>Dark</h5>
+    <StaticMap
+      accessToken={MAPBOX_ACCESS_TOKEN}
+      mapStyle="mapbox/dark-v11"
+      center={{ lat: 40.7128, lng: -74.0060 }}
+      zoom={12}
+      size={{ width: 250, height: 180 }}
+      attribution={true}
+      style={{ border: '1px solid #ccc', borderRadius: '6px' }}
+    />
+  </div>
+</div>`}
+        >
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
+            <div>
+              <h5 style={{ margin: '0 0 8px 0', fontSize: '0.9rem', fontWeight: 600 }}>Streets</h5>
+              <StaticMap
+                accessToken={MAPBOX_ACCESS_TOKEN}
+                mapStyle="mapbox/streets-v12"
+                center={{ lat: 40.7128, lng: -74.0060 }}
+                zoom={12}
+                size={{ width: 250, height: 180 }}
+                attribution={true}
+                style={{ border: '1px solid #ccc', borderRadius: '6px' }}
+              />
+            </div>
+            <div>
+              <h5 style={{ margin: '0 0 8px 0', fontSize: '0.9rem', fontWeight: 600 }}>Satellite</h5>
+              <StaticMap
+                accessToken={MAPBOX_ACCESS_TOKEN}
+                mapStyle="mapbox/satellite-v9"
+                center={{ lat: 40.7128, lng: -74.0060 }}
+                zoom={12}
+                size={{ width: 250, height: 180 }}
+                attribution={true}
+                style={{ border: '1px solid #ccc', borderRadius: '6px' }}
+              />
+            </div>
+            <div>
+              <h5 style={{ margin: '0 0 8px 0', fontSize: '0.9rem', fontWeight: 600 }}>Dark</h5>
+              <StaticMap
+                accessToken={MAPBOX_ACCESS_TOKEN}
+                mapStyle="mapbox/dark-v11"
+                center={{ lat: 40.7128, lng: -74.0060 }}
+                zoom={12}
+                size={{ width: 250, height: 180 }}
+                attribution={true}
+                style={{ border: '1px solid #ccc', borderRadius: '6px' }}
+              />
+            </div>
+          </div>
+        </Example>
+
+        <Example
+          title="Advanced Map with Pitch and Rotation"
+          description="3D perspective map with custom pitch, rotation, and high zoom for dramatic effect"
+          category="StaticMap"
+          difficulty="advanced"
+          code={`<StaticMap
+  accessToken={MAPBOX_ACCESS_TOKEN}
+  mapStyle="mapbox/streets-v12"
+  center={{ lat: 40.7589, lng: -73.9851 }}
+  zoom={16}
+  pitch={45}
+  bearing={-17.6}
+  size={{ width: 600, height: 400 }}
+  attribution={true}
+  style={{ border: '1px solid #ccc', borderRadius: '8px' }}
+/>`}
+        >
+          <StaticMap
+            accessToken={MAPBOX_ACCESS_TOKEN}
+            mapStyle="mapbox/streets-v12"
+            center={{ lat: 40.7589, lng: -73.9851 }}
+            zoom={16}
+            pitch={45}
+            bearing={-17.6}
             size={{ width: 600, height: 400 }}
             attribution={true}
-            style={{ border: '2px solid #ddd' }}
+            style={{ border: '1px solid #ccc', borderRadius: '8px' }}
+          />
+        </Example>
+
+        {/* Marker Examples */}
+        <SectionHeader 
+          title="Marker Examples" 
+          description="Learn how to add and customize markers with automatic popup management"
+        />
+
+        <Example
+          title="Automatic Popup Management (NEW!)"
+          description="The new pattern: simply add a Popup as a child of a Marker - no state management required!"
+          category="Marker"
+          difficulty="beginner"
+          code={`<StaticMap
+  accessToken={MAPBOX_ACCESS_TOKEN}
+  mapStyle="mapbox/streets-v12"
+  center={{ lat: 40.7428, lng: -74.0060 }}
+  zoom={11}
+  size={{ width: 600, height: 400 }}
+  attribution={true}
+>
+  <Marker 
+    position={{ lat: 40.7589, lng: -73.9851 }}
+    color="#ff6b6b"
+    symbol="🏢"
+    scale={1.5}
+  >
+    <Popup anchor="bottom-left">
+      <strong>New York City</strong><br/>
+      The Big Apple<br/>
+      <em>Click marker to toggle - no state management needed!</em>
+    </Popup>
+  </Marker>
+
+  <Marker
+    position={{ lat: 40.6892, lng: -74.0445 }}
+    color="#4ecdc4"
+    symbol="🗽"
+    scale={1}
+  >
+    <Popup anchor="top" offset={{ x: 0, y: -15 }}>
+      <strong>Statue of Liberty</strong><br />
+      Liberty Island<br />
+      <em>Automatically shows/hides on click!</em>
+    </Popup>
+  </Marker>
+
+  <Marker
+    position={{ lat: 40.7061, lng: -74.0089 }}
+    color="#ffa726"
+    symbol="⭐"
+    scale={0.7}
+  />
+</StaticMap>`}
+        >
+          <StaticMap
+            accessToken={MAPBOX_ACCESS_TOKEN}
+            mapStyle="mapbox/streets-v12"
+            center={{ lat: 40.7428, lng: -74.0060 }}
+            zoom={11}
+            size={{ width: 600, height: 400 }}
+            attribution={true}
+            style={{ border: '1px solid #ccc', borderRadius: '8px' }}
           >
-            {/* Automatic popup management - no onClick needed */}
-            <Marker position={{ lat: 37.7749, lng: -122.4194 }}>
-              <div style={{
-                backgroundColor: '#9c27b0',
-                color: 'white',
-                padding: '4px 8px',
-                fontSize: '12px',
-                fontWeight: 'bold',
-                whiteSpace: 'nowrap'
-              }}>
-                San Francisco
-              </div>
-              <Popup anchor="bottom" offset={{ x: 0, y: -25 }}>
-                <strong>San Francisco</strong><br />
-                Custom styled marker<br />
-                with automatic popup
-              </Popup>
-            </Marker>
-
-            <Marker position={{ lat: 37.7849, lng: -122.4094 }}>
-              <div style={{
-                width: 20,
-                height: 20,
-                backgroundColor: '#f44336',
-                border: '3px solid white'
-              }} />
-            </Marker>
-
-            {/* Custom marker with automatic popup */}
-            <CustomMarker
-              position={{ lat: 37.8199, lng: -122.4783 }}
-              imageUrl="https://docs.mapbox.com/help/demos/custom-markers-gl-js/mapbox-icon.png"
+            <Marker 
+              position={{ lat: 40.7589, lng: -73.9851 }}
+              color="#ff6b6b"
+              symbol="🏢"
+              scale={1.5}
             >
-              <Popup anchor="bottom" offset={{ x: 0, y: -45 }}>
-                <strong>Golden Gate Bridge</strong><br />
-                Custom marker with<br />
-                automatic popup management
+              <Popup anchor="bottom-left">
+                <strong>New York City</strong><br/>
+                The Big Apple<br/>
+                <em>Click marker to toggle - no state management needed!</em>
               </Popup>
-            </CustomMarker>
-
-            {/* Manual popup example (still works) */}
-            {popupVisible === 'independent' && (
-              <Popup
-                position={{ lat: 37.7849, lng: -122.4094 }}
-                anchor="left"
-                offset={{ x: 15, y: 0 }}
-              >
-                <strong>Manual Popup</strong><br />
-                Still supports manual state management
-              </Popup>
-            )}
+            </Marker>
 
             <Marker
-              position={{ lat: 37.7849, lng: -122.4094 }}
+              position={{ lat: 40.6892, lng: -74.0445 }}
+              color="#4ecdc4"
+              symbol="🗽"
+              scale={1}
+            >
+              <Popup anchor="top" offset={{ x: 0, y: -15 }}>
+                <strong>Statue of Liberty</strong><br />
+                Liberty Island<br />
+                <em>Automatically shows/hides on click!</em>
+              </Popup>
+            </Marker>
+
+            <Marker
+              position={{ lat: 40.7061, lng: -74.0089 }}
+              color="#ffa726"
+              symbol="⭐"
               scale={0.7}
-              color="#ffffff"
-              onClick={() => togglePopup('independent')}
             />
           </StaticMap>
-        </div>
+        </Example>
 
-        {/* Example 3: World View with Multiple Popups */}
-        <div>
-          <h2>Example 3: World Cities</h2>
-          <p>Global view with major cities and popup variations</p>
+        <Example
+          title="Custom Styled Markers"
+          description="Various marker customizations with colors, symbols, and scales"
+          category="Marker"
+          difficulty="intermediate"
+          code={`<StaticMap
+  accessToken={MAPBOX_ACCESS_TOKEN}
+  mapStyle="mapbox/light-v11"
+  center={{ lat: 40.7528, lng: -74.0060 }}
+  zoom={12}
+  size={{ width: 600, height: 400 }}
+  attribution={true}
+>
+  {/* Large marker with custom symbol */}
+  <Marker 
+    position={{ lat: 40.7728, lng: -74.0160 }}
+    color="#e74c3c"
+    symbol="🎯"
+    scale={2.0}
+  />
+  
+  {/* Medium marker with text symbol */}
+  <Marker
+    position={{ lat: 40.7528, lng: -73.9960 }}
+    color="#2ecc71"
+    symbol="A"
+    scale={1.2}
+  />
+  
+  {/* Small marker cluster */}
+  <Marker position={{ lat: 40.7328, lng: -74.0260 }} color="#3498db" scale={0.8} />
+  <Marker position={{ lat: 40.7308, lng: -74.0240 }} color="#9b59b6" scale={0.8} />
+  <Marker position={{ lat: 40.7348, lng: -74.0240 }} color="#f39c12" scale={0.8} />
+</StaticMap>`}
+        >
+          <StaticMap
+            accessToken={MAPBOX_ACCESS_TOKEN}
+            mapStyle="mapbox/light-v11"
+            center={{ lat: 40.7528, lng: -74.0060 }}
+            zoom={12}
+            size={{ width: 600, height: 400 }}
+            attribution={true}
+            style={{ border: '1px solid #ccc', borderRadius: '8px' }}
+          >
+            <Marker 
+              position={{ lat: 40.7728, lng: -74.0160 }}
+              color="#e74c3c"
+              symbol="🎯"
+              scale={2.0}
+            />
+            
+            <Marker
+              position={{ lat: 40.7528, lng: -73.9960 }}
+              color="#2ecc71"
+              symbol="A"
+              scale={1.2}
+            />
+            
+            <Marker position={{ lat: 40.7328, lng: -74.0260 }} color="#3498db" scale={0.8} />
+            <Marker position={{ lat: 40.7308, lng: -74.0240 }} color="#9b59b6" scale={0.8} />
+            <Marker position={{ lat: 40.7348, lng: -74.0240 }} color="#f39c12" scale={0.8} />
+          </StaticMap>
+        </Example>
+
+        <Example
+          title="Zillow-Style Price Markers"
+          description="Real estate inspired pill-shaped markers with shadow effects and price displays"
+          category="Marker"
+          difficulty="advanced"
+          code={`// Custom pill-shaped price marker component
+const PriceMarker = ({ position, price, color = '#ffffff', textColor = '#333' }) => (
+  <Marker 
+    position={position}
+    color="transparent"
+    symbol=""
+    scale={1}
+  >
+    <div style={{
+      position: 'absolute',
+      top: '-20px',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      backgroundColor: color,
+      color: textColor,
+      padding: '6px 12px',
+      borderRadius: '20px',
+      fontSize: '14px',
+      fontWeight: 'bold',
+      border: '1px solid #e0e0e0',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+      whiteSpace: 'nowrap',
+      fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif'
+    }}>
+      {price}
+    </div>
+  </Marker>
+);
+
+<StaticMap
+  accessToken={MAPBOX_ACCESS_TOKEN}
+  mapStyle="mapbox/streets-v12"
+  center={{ lat: 40.7628, lng: -73.9678 }}
+  zoom={14}
+  size={{ width: 600, height: 400 }}
+  attribution={true}
+>
+  <PriceMarker 
+    position={{ lat: 40.7728, lng: -73.9778 }}
+    price="$3.2M"
+    color="#ffffff"
+    textColor="#333"
+  />
+  
+  <PriceMarker 
+    position={{ lat: 40.7628, lng: -73.9578 }}
+    price="$2.8M"
+    color="#e8f5e8"
+    textColor="#2d7d2d"
+  />
+  
+  <PriceMarker 
+    position={{ lat: 40.7528, lng: -73.9678 }}
+    price="$4.1M"
+    color="#fff3e0"
+    textColor="#bf6900"
+  />
+  
+  <PriceMarker 
+    position={{ lat: 40.7728, lng: -73.9578 }}
+    price="$1.9M"
+    color="#f3e5f5"
+    textColor="#7b1fa2"
+  />
+  
+  <PriceMarker 
+    position={{ lat: 40.7628, lng: -73.9778 }}
+    price="$5.5M"
+    color="#e3f2fd"
+    textColor="#1976d2"
+  />
+</StaticMap>`}
+        >
+          <StaticMap
+            accessToken={MAPBOX_ACCESS_TOKEN}
+            mapStyle="mapbox/streets-v12"
+            center={{ lat: 40.7628, lng: -73.9678 }}
+            zoom={14}
+            size={{ width: 600, height: 400 }}
+            attribution={true}
+            style={{ border: '1px solid #ccc', borderRadius: '8px' }}
+          >
+            <Marker 
+              position={{ lat: 40.7728, lng: -73.9778 }}
+              color="transparent"
+              symbol=""
+              scale={1}
+            >
+              <div style={{
+                position: 'absolute',
+                top: '-20px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                backgroundColor: '#ffffff',
+                color: '#333',
+                padding: '6px 12px',
+                borderRadius: '20px',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                border: '1px solid #e0e0e0',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                whiteSpace: 'nowrap',
+                fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif'
+              }}>
+                $3.2M
+              </div>
+            </Marker>
+            
+            <Marker 
+              position={{ lat: 40.7628, lng: -73.9578 }}
+              color="transparent"
+              symbol=""
+              scale={1}
+            >
+              <div style={{
+                position: 'absolute',
+                top: '-20px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                backgroundColor: '#e8f5e8',
+                color: '#2d7d2d',
+                padding: '6px 12px',
+                borderRadius: '20px',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                border: '1px solid #e0e0e0',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                whiteSpace: 'nowrap',
+                fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif'
+              }}>
+                $2.8M
+              </div>
+            </Marker>
+            
+            <Marker 
+              position={{ lat: 40.7528, lng: -73.9678 }}
+              color="transparent"
+              symbol=""
+              scale={1}
+            >
+              <div style={{
+                position: 'absolute',
+                top: '-20px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                backgroundColor: '#fff3e0',
+                color: '#bf6900',
+                padding: '6px 12px',
+                borderRadius: '20px',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                border: '1px solid #e0e0e0',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                whiteSpace: 'nowrap',
+                fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif'
+              }}>
+                $4.1M
+              </div>
+            </Marker>
+            
+            <Marker 
+              position={{ lat: 40.7728, lng: -73.9578 }}
+              color="transparent"
+              symbol=""
+              scale={1}
+            >
+              <div style={{
+                position: 'absolute',
+                top: '-20px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                backgroundColor: '#f3e5f5',
+                color: '#7b1fa2',
+                padding: '6px 12px',
+                borderRadius: '20px',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                border: '1px solid #e0e0e0',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                whiteSpace: 'nowrap',
+                fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif'
+              }}>
+                $1.9M
+              </div>
+            </Marker>
+            
+            <Marker 
+              position={{ lat: 40.7628, lng: -73.9778 }}
+              color="transparent"
+              symbol=""
+              scale={1}
+            >
+              <div style={{
+                position: 'absolute',
+                top: '-20px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                backgroundColor: '#e3f2fd',
+                color: '#1976d2',
+                padding: '6px 12px',
+                borderRadius: '20px',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                border: '1px solid #e0e0e0',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                whiteSpace: 'nowrap',
+                fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif'
+              }}>
+                $5.5M
+              </div>
+            </Marker>
+          </StaticMap>
+        </Example>
+
+        {/* CircleMarker Examples */}
+        <SectionHeader 
+          title="CircleMarker Examples" 
+          description="Circular markers with customizable radius, colors, and strokes"
+        />
+
+        <Example
+          title="Basic Circle Markers"
+          description="Simple circular markers with different sizes and colors"
+          category="CircleMarker"
+          difficulty="beginner"
+          code={`<StaticMap
+  accessToken={MAPBOX_ACCESS_TOKEN}
+  mapStyle="mapbox/light-v11"
+  center={{ lat: 40.7128, lng: -74.0060 }}
+  zoom={11}
+  size={{ width: 500, height: 350 }}
+  attribution={true}
+>
+  <CircleMarker 
+    position={{ lat: 40.7328, lng: -74.0160 }} 
+    radius={8} 
+    color="#e74c3c" 
+    strokeColor="#ffffff" 
+    strokeWidth={2}
+  />
+  <CircleMarker 
+    position={{ lat: 40.7128, lng: -73.9960 }} 
+    radius={12} 
+    color="#3498db" 
+    strokeColor="#2c3e50" 
+    strokeWidth={3}
+  />
+  <CircleMarker 
+    position={{ lat: 40.6928, lng: -74.0260 }} 
+    radius={6} 
+    color="#2ecc71" 
+    strokeColor="#ffffff" 
+    strokeWidth={1}
+  />
+  <CircleMarker 
+    position={{ lat: 40.7228, lng: -73.9860 }} 
+    radius={15} 
+    color="#f39c12" 
+    strokeColor="#e67e22" 
+    strokeWidth={4}
+  />
+</StaticMap>`}
+        >
+          <StaticMap
+            accessToken={MAPBOX_ACCESS_TOKEN}
+            mapStyle="mapbox/light-v11"
+            center={{ lat: 40.7128, lng: -74.0060 }}
+            zoom={11}
+            size={{ width: 500, height: 350 }}
+            attribution={true}
+            style={{ border: '1px solid #ccc', borderRadius: '8px' }}
+          >
+            <CircleMarker 
+              position={{ lat: 40.7328, lng: -74.0160 }} 
+              radius={8} 
+              color="#e74c3c" 
+              strokeColor="#ffffff" 
+              strokeWidth={2}
+            />
+            <CircleMarker 
+              position={{ lat: 40.7128, lng: -73.9960 }} 
+              radius={12} 
+              color="#3498db" 
+              strokeColor="#2c3e50" 
+              strokeWidth={3}
+            />
+            <CircleMarker 
+              position={{ lat: 40.6928, lng: -74.0260 }} 
+              radius={6} 
+              color="#2ecc71" 
+              strokeColor="#ffffff" 
+              strokeWidth={1}
+            />
+            <CircleMarker 
+              position={{ lat: 40.7228, lng: -73.9860 }} 
+              radius={15} 
+              color="#f39c12" 
+              strokeColor="#e67e22" 
+              strokeWidth={4}
+            />
+          </StaticMap>
+        </Example>
+
+        <Example
+          title="Circle Markers with Opacity and Effects"
+          description="Advanced circle styling with opacity, gradients, and shadow effects"
+          category="CircleMarker"
+          difficulty="intermediate"
+          code={`<StaticMap
+  accessToken={MAPBOX_ACCESS_TOKEN}
+  mapStyle="mapbox/dark-v11"
+  center={{ lat: 40.7428, lng: -74.0060 }}
+  zoom={12}
+  size={{ width: 500, height: 350 }}
+  attribution={true}
+>
+  {/* Large semi-transparent circles */}
+  <CircleMarker 
+    position={{ lat: 40.7528, lng: -74.0160 }} 
+    radius={25} 
+    color="rgba(231, 76, 60, 0.6)" 
+    strokeColor="#e74c3c" 
+    strokeWidth={3}
+  />
+  <CircleMarker 
+    position={{ lat: 40.7328, lng: -73.9960 }} 
+    radius={20} 
+    color="rgba(52, 152, 219, 0.7)" 
+    strokeColor="#3498db" 
+    strokeWidth={2}
+  />
+  
+  {/* Overlapping effect */}
+  <CircleMarker 
+    position={{ lat: 40.7428, lng: -74.0060 }} 
+    radius={18} 
+    color="rgba(46, 204, 113, 0.5)" 
+    strokeColor="#2ecc71" 
+    strokeWidth={4}
+  />
+  <CircleMarker 
+    position={{ lat: 40.7408, lng: -74.0040 }} 
+    radius={15} 
+    color="rgba(155, 89, 182, 0.8)" 
+    strokeColor="#9b59b6" 
+    strokeWidth={2}
+  />
+</StaticMap>`}
+        >
           <StaticMap
             accessToken={MAPBOX_ACCESS_TOKEN}
             mapStyle="mapbox/dark-v11"
-            center={{ lat: 20, lng: 0 }}
-            zoom={1.5}
-            size={{ width: 800, height: 400 }}
+            center={{ lat: 40.7428, lng: -74.0060 }}
+            zoom={12}
+            size={{ width: 500, height: 350 }}
             attribution={true}
-            style={{ border: '2px solid #ddd' }}
+            style={{ border: '1px solid #ccc', borderRadius: '8px' }}
           >
-            <Marker
-              position={{ lat: 51.5074, lng: -0.1278 }}
-              color="#e74c3c"
-              symbol="🇬🇧"
-              onClick={() => togglePopup('london')}
+            <CircleMarker 
+              position={{ lat: 40.7528, lng: -74.0160 }} 
+              radius={25} 
+              color="rgba(231, 76, 60, 0.6)" 
+              strokeColor="#e74c3c" 
+              strokeWidth={3}
             />
-            {popupVisible === 'london' && (
-              <Popup position={{ lat: 51.5074, lng: -0.1278 }} anchor="center">
-                <strong>London</strong><br />
-                United Kingdom<br />
-                Population: 9M
-              </Popup>
-            )}
-
-            <Marker
-              position={{ lat: 48.8566, lng: 2.3522 }}
-              color="#3498db"
-              symbol="🇫🇷"
-              onClick={() => togglePopup('paris')}
+            <CircleMarker 
+              position={{ lat: 40.7328, lng: -73.9960 }} 
+              radius={20} 
+              color="rgba(52, 152, 219, 0.7)" 
+              strokeColor="#3498db" 
+              strokeWidth={2}
             />
-            {popupVisible === 'paris' && (
-              <Popup position={{ lat: 48.8566, lng: 2.3522 }} anchor="left">
-                <strong>Paris</strong><br />
-                France<br />
-                The City of Light
-              </Popup>
-            )}
-
-            <Marker
-              position={{ lat: 35.6762, lng: 139.6503 }}
-              color="#f39c12"
-              symbol="🇯🇵"
-              onClick={() => togglePopup('tokyo')}
+            
+            <CircleMarker 
+              position={{ lat: 40.7428, lng: -74.0060 }} 
+              radius={18} 
+              color="rgba(46, 204, 113, 0.5)" 
+              strokeColor="#2ecc71" 
+              strokeWidth={4}
             />
-            {popupVisible === 'tokyo' && (
-              <Popup position={{ lat: 35.6762, lng: 139.6503 }} anchor="right">
-                <strong>Tokyo</strong><br />
-                Japan<br />
-                Population: 14M
-              </Popup>
-            )}
-
-            <Marker
-              position={{ lat: -33.8688, lng: 151.2093 }}
-              color="#1abc9c"
-              symbol="🇦🇺"
-              onClick={() => togglePopup('sydney')}
+            <CircleMarker 
+              position={{ lat: 40.7408, lng: -74.0040 }} 
+              radius={15} 
+              color="rgba(155, 89, 182, 0.8)" 
+              strokeColor="#9b59b6" 
+              strokeWidth={2}
             />
-            {popupVisible === 'sydney' && (
-              <Popup position={{ lat: -33.8688, lng: 151.2093 }} anchor="top">
-                <strong>Sydney</strong><br />
-                Australia<br />
-                Harbour City
-              </Popup>
-            )}
           </StaticMap>
-        </div>
+        </Example>
 
-        {/* Example 4: Standalone Popups */}
-        <div>
-          <h2>Example 4: Standalone Popups</h2>
-          <p>Popups positioned independently with their own coordinates</p>
+        <Example
+          title="Circle Markers with Automatic Popups"
+          description="Circle markers that show popups when clicked - no state management needed"
+          category="CircleMarker"
+          difficulty="intermediate"
+          code={`<StaticMap
+  accessToken={MAPBOX_ACCESS_TOKEN}
+  mapStyle="mapbox/streets-v12"
+  center={{ lat: 40.7428, lng: -74.0060 }}
+  zoom={12}
+  size={{ width: 500, height: 350 }}
+  attribution={true}
+>
+  <CircleMarker 
+    position={{ lat: 40.7528, lng: -74.0060 }} 
+    radius={10} 
+    color="#9b59b6" 
+    strokeColor="#ffffff" 
+    strokeWidth={2}
+  >
+    <Popup anchor="bottom">
+      <strong>Circle Marker 1</strong><br />
+      Radius: 10px<br />
+      Color: Purple
+    </Popup>
+  </CircleMarker>
+  
+  <CircleMarker 
+    position={{ lat: 40.7328, lng: -74.0060 }} 
+    radius={15} 
+    color="#1abc9c" 
+    strokeColor="#16a085" 
+    strokeWidth={3}
+  >
+    <Popup anchor="top">
+      <strong>Circle Marker 2</strong><br />
+      Radius: 15px<br />
+      Color: Teal
+    </Popup>
+  </CircleMarker>
+</StaticMap>`}
+        >
+          <StaticMap
+            accessToken={MAPBOX_ACCESS_TOKEN}
+            mapStyle="mapbox/streets-v12"
+            center={{ lat: 40.7428, lng: -74.0060 }}
+            zoom={12}
+            size={{ width: 500, height: 350 }}
+            attribution={true}
+            style={{ border: '1px solid #ccc', borderRadius: '8px' }}
+          >
+            <CircleMarker 
+              position={{ lat: 40.7528, lng: -74.0060 }} 
+              radius={10} 
+              color="#9b59b6" 
+              strokeColor="#ffffff" 
+              strokeWidth={2}
+            >
+              <Popup anchor="bottom">
+                <strong>Circle Marker 1</strong><br />
+                Radius: 10px<br />
+                Color: Purple
+              </Popup>
+            </CircleMarker>
+            
+            <CircleMarker 
+              position={{ lat: 40.7328, lng: -74.0060 }} 
+              radius={15} 
+              color="#1abc9c" 
+              strokeColor="#16a085" 
+              strokeWidth={3}
+            >
+              <Popup anchor="top">
+                <strong>Circle Marker 2</strong><br />
+                Radius: 15px<br />
+                Color: Teal
+              </Popup>
+            </CircleMarker>
+          </StaticMap>
+        </Example>
+
+        {/* Popup Examples */}
+        <SectionHeader 
+          title="Popup Examples" 
+          description="Flexible popup components with various anchoring and styling options"
+        />
+
+        <Example
+          title="Standalone Popups"
+          description="Popups positioned independently with their own coordinates"
+          category="Popup"
+          difficulty="intermediate"
+          code={`<StaticMap
+  accessToken={MAPBOX_ACCESS_TOKEN}
+  mapStyle="mapbox/outdoors-v12"
+  center={{ lat: 37.8049, lng: -122.4194 }}
+  zoom={12}
+  size={{ width: 600, height: 400 }}
+  attribution={true}
+>
+  <Popup 
+    position={{ lat: 37.8149, lng: -122.4094 }} 
+    anchor="bottom"
+    closeButton
+  >
+    <strong>Financial District</strong><br />
+    Downtown San Francisco<br />
+    <em>Standalone popup with bottom anchor</em>
+  </Popup>
+
+  <Popup 
+    position={{ lat: 37.7949, lng: -122.4294 }} 
+    anchor="top-right"
+    closeButton
+  >
+    <strong>Golden Gate Bridge Area</strong><br />
+    Famous suspension bridge<br />
+    <em>Top-right anchor positioning</em>
+  </Popup>
+</StaticMap>`}
+        >
           <StaticMap
             accessToken={MAPBOX_ACCESS_TOKEN}
             mapStyle="mapbox/outdoors-v12"
-            center={{ lat: 37.7749, lng: -122.4194 }}
+            center={{ lat: 37.8049, lng: -122.4194 }}
             zoom={12}
-            size={{ width: 800, height: 500 }}
+            size={{ width: 600, height: 400 }}
             attribution={true}
-            style={{ border: '2px solid #ddd' }}
+            style={{ border: '1px solid #ccc', borderRadius: '8px' }}
           >
-            {/* Standalone popups with close buttons - dismissable without state */}
             <Popup 
-              position={{ lat: 37.7849, lng: -122.4094 }} 
+              position={{ lat: 37.8149, lng: -122.4094 }} 
               anchor="bottom"
               closeButton
             >
@@ -255,7 +1030,7 @@ function App() {
             </Popup>
 
             <Popup 
-              position={{ lat: 37.7649, lng: -122.4294 }} 
+              position={{ lat: 37.7949, lng: -122.4294 }} 
               anchor="top-right"
               closeButton
             >
@@ -263,643 +1038,113 @@ function App() {
               Famous suspension bridge<br />
               <em>Top-right anchor positioning</em>
             </Popup>
+          </StaticMap>
+        </Example>
+
+        <Example
+          title="Advanced Popup Configurations"
+          description="Custom popup styling, offsets, and rich content examples"
+          category="Popup"
+          difficulty="advanced"
+          code={`<StaticMap
+  accessToken={MAPBOX_ACCESS_TOKEN}
+  mapStyle="mapbox/dark-v11"
+  center={{ lat: 40.7628, lng: -73.9678 }}
+  zoom={13}
+  size={{ width: 600, height: 400 }}
+  attribution={true}
+>
+  {/* Custom styled popup with offset */}
+  <Popup 
+    position={{ lat: 40.7728, lng: -73.9778 }} 
+    anchor="left"
+    offset={{ x: 20, y: 0 }}
+    maxWidth="300px"
+  >
+    <div style={{ padding: '8px' }}>
+      <h4 style={{ margin: '0 0 8px 0', color: '#333' }}>🎨 Custom Styled</h4>
+      <p style={{ margin: 0, fontSize: '14px' }}>Rich HTML content with custom styling</p>
+    </div>
+  </Popup>
+
+  {/* Large popup with close button */}
+  <Popup 
+    position={{ lat: 40.7528, lng: -73.9578 }} 
+    anchor="bottom"
+    closeButton
+    maxWidth="250px"
+  >
+    <div>
+      <strong>📍 Location Details</strong><br/>
+      <img src="https://picsum.photos/200/100" 
+           alt="Sample" style={{ width: '100%', marginTop: '8px' }} />
+      <p style={{ margin: '8px 0 0', fontSize: '12px' }}>Sample image content</p>
+    </div>
+  </Popup>
+</StaticMap>`}
+        >
+          <StaticMap
+            accessToken={MAPBOX_ACCESS_TOKEN}
+            mapStyle="mapbox/dark-v11"
+            center={{ lat: 40.7628, lng: -73.9678 }}
+            zoom={13}
+            size={{ width: 600, height: 400 }}
+            attribution={true}
+            style={{ border: '1px solid #ccc', borderRadius: '8px' }}
+          >
+            <Popup 
+              position={{ lat: 40.7728, lng: -73.9778 }} 
+              anchor="left"
+              offset={{ x: 20, y: 0 }}
+              maxWidth="300px"
+            >
+              <div style={{ padding: '8px' }}>
+                <h4 style={{ margin: '0 0 8px 0', color: '#333' }}>🎨 Custom Styled</h4>
+                <p style={{ margin: 0, fontSize: '14px' }}>Rich HTML content with custom styling</p>
+              </div>
+            </Popup>
 
             <Popup 
-              position={{ lat: 37.7549, lng: -122.4094 }} 
-              anchor="left"
+              position={{ lat: 40.7528, lng: -73.9578 }} 
+              anchor="bottom"
+              closeButton
+              maxWidth="250px"
             >
-              <strong>City Hall</strong><br />
-              Government building<br />
-              <em>Left anchor with custom positioning</em>
+              <div>
+                <strong>📍 Location Details</strong><br/>
+                <img src="https://picsum.photos/200/100" 
+                     alt="Sample" style={{ width: '100%', marginTop: '8px' }} />
+                <p style={{ margin: '8px 0 0', fontSize: '12px' }}>Sample image content</p>
+              </div>
             </Popup>
           </StaticMap>
+        </Example>
+
+
+
+        {/* Getting Started Section */}
+        <div style={{ 
+          marginTop: '64px', 
+          padding: '32px', 
+          backgroundColor: '#f8f9fa',
+          borderRadius: '12px',
+          border: '1px solid #e9ecef'
+        }}>
+          <h3 style={{ margin: '0 0 16px 0', fontSize: '1.5rem', fontWeight: 700, color: '#212529' }}>
+            🚀 Getting Started
+          </h3>
+          <p style={{ fontSize: '1.1rem', color: '#495057', marginBottom: '20px' }}>
+            To use this library with your own maps:
+          </p>
+          <ol style={{ fontSize: '1rem', color: '#495057', lineHeight: 1.6 }}>
+            <li>Sign up for a free Mapbox account at <a href="https://account.mapbox.com/" target="_blank" rel="noopener noreferrer" style={{ color: '#007bff' }}>https://account.mapbox.com/</a></li>
+            <li>Get your access token from the Mapbox dashboard</li>
+            <li>Replace <code style={{ backgroundColor: '#e9ecef', padding: '2px 4px', borderRadius: '3px' }}>MAPBOX_ACCESS_TOKEN</code> in this demo with your token</li>
+            <li>Start building amazing static map experiences!</li>
+          </ol>
         </div>
 
-        {/* Example 5: New vs Old Popup Pattern Comparison */}
-        <div>
-          <h2>Example 5: New vs Old Popup Pattern Comparison</h2>
-          <p>Side-by-side comparison of new automatic popup management vs old manual state management</p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-            <div>
-              <h4>✨ NEW: Automatic Popup Management</h4>
-              <p style={{ fontSize: '14px', color: '#666' }}>
-                Simply add a Popup as a child - no onClick or state management needed!
-              </p>
-              <StaticMap
-                accessToken={MAPBOX_ACCESS_TOKEN}
-                mapStyle="mapbox/streets-v11"
-                center={{ lat: 40.7128, lng: -74.0060 }}
-                zoom={13}
-                size={{ width: 300, height: 200 }}
-                attribution={true}
-                style={{ border: '1px solid #ccc' }}
-              >
-                <Marker
-                  position={{ lat: 40.7128, lng: -74.0060 }}
-                  color="#e74c3c"
-                  symbol="📍"
-                >
-                  <Popup anchor="bottom" offset={{ x: 0, y: -30 }}>
-                    <strong>Auto Popup</strong><br />
-                    Click marker to toggle!<br />
-                    <em>No code required</em>
-                  </Popup>
-                </Marker>
-              </StaticMap>
-              <div style={{ 
-                background: '#e8f5e8', 
-                padding: '10px', 
-                margin: '10px 0',
-                fontSize: '12px',
-                fontFamily: 'monospace'
-              }}>
-                <strong>Code:</strong><br />
-                &lt;Marker position=&#123;pos&#125;&gt;<br />
-                &nbsp;&nbsp;&lt;Popup&gt;Content&lt;/Popup&gt;<br />
-                &lt;/Marker&gt;
-              </div>
-            </div>
-
-            <div>
-              <h4>🔧 OLD: Manual State Management</h4>
-              <p style={{ fontSize: '14px', color: '#666' }}>
-                Requires onClick handlers and state management (still supported)
-              </p>
-              <StaticMap
-                accessToken={MAPBOX_ACCESS_TOKEN}
-                mapStyle="mapbox/streets-v11"
-                center={{ lat: 40.7128, lng: -74.0060 }}
-                zoom={13}
-                size={{ width: 300, height: 200 }}
-                attribution={true}
-                style={{ border: '1px solid #ccc' }}
-              >
-                <Marker
-                  position={{ lat: 40.7128, lng: -74.0060 }}
-                  color="#3498db"
-                  symbol="📍"
-                  onClick={() => togglePopup('manual-popup')}
-                />
-                {popupVisible === 'manual-popup' && (
-                  <Popup
-                    position={{ lat: 40.7128, lng: -74.0060 }}
-                    anchor="bottom"
-                    offset={{ x: 0, y: -30 }}
-                  >
-                    <strong>Manual Popup</strong><br />
-                    Requires state management<br />
-                    <em>More flexible positioning</em>
-                  </Popup>
-                )}
-              </StaticMap>
-              <div style={{ 
-                background: '#fff5e6', 
-                padding: '10px', 
-                margin: '10px 0',
-                fontSize: '12px',
-                fontFamily: 'monospace'
-              }}>
-                <strong>Code:</strong><br />
-                &lt;Marker onClick=&#123;toggle&#125; /&gt;<br />
-                &#123;visible && &lt;Popup position=&#123;pos&#125;&gt;...&lt;/Popup&gt;&#125;
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Example 7: CircleMarker Examples */}
-        <div>
-          <h2>Example 7: CircleMarker Components</h2>
-          <p>Circular markers with customizable stroke and fill</p>
-          
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>            
-            {/* Basic Circle Markers */}
-            <div>
-              <h4>Basic Circle Markers</h4>
-              <StaticMap
-                accessToken={MAPBOX_ACCESS_TOKEN}
-                mapStyle="mapbox/light-v11"
-                center={{ lat: 40.7128, lng: -74.0060 }}
-                zoom={11}
-                size={{ width: 400, height: 300 }}
-                attribution={true}
-                style={{ border: '1px solid #ccc' }}
-              >
-                <CircleMarker 
-                  position={{ lat: 40.7328, lng: -74.0160 }} 
-                  radius={8} 
-                  color="#e74c3c" 
-                  strokeColor="#ffffff" 
-                  strokeWidth={2}
-                />
-                <CircleMarker 
-                  position={{ lat: 40.7128, lng: -73.9960 }} 
-                  radius={12} 
-                  color="#3498db" 
-                  strokeColor="#2c3e50" 
-                  strokeWidth={3}
-                />
-                <CircleMarker 
-                  position={{ lat: 40.6928, lng: -74.0260 }} 
-                  radius={6} 
-                  color="#2ecc71" 
-                  strokeColor="#ffffff" 
-                  strokeWidth={1}
-                />
-                <CircleMarker 
-                  position={{ lat: 40.7228, lng: -73.9860 }} 
-                  radius={15} 
-                  color="#f39c12" 
-                  strokeColor="#e67e22" 
-                  strokeWidth={4}
-                />
-              </StaticMap>
-            </div>
-            
-            {/* Circle Markers with Opacity */}
-            <div>
-              <h4>Circle Markers with Opacity</h4>
-              <StaticMap
-                accessToken={MAPBOX_ACCESS_TOKEN}
-                mapStyle="mapbox/dark-v11"
-                center={{ lat: 40.7128, lng: -74.0060 }}
-                zoom={11}
-                size={{ width: 400, height: 300 }}
-                attribution={true}
-                style={{ border: '1px solid #ccc' }}
-              >
-                <CircleMarker 
-                  position={{ lat: 40.7328, lng: -74.0160 }} 
-                  radius={20} 
-                  color="#e74c3c" 
-                  strokeColor="#ffffff" 
-                  strokeWidth={3}
-                  opacity={0.7}
-                  strokeOpacity={0.9}
-                />
-                <CircleMarker 
-                  position={{ lat: 40.7128, lng: -73.9960 }} 
-                  radius={16} 
-                  color="#3498db" 
-                  strokeColor="#ecf0f1" 
-                  strokeWidth={2}
-                  opacity={0.5}
-                  strokeOpacity={0.8}
-                />
-                <CircleMarker 
-                  position={{ lat: 40.6928, lng: -74.0260 }} 
-                  radius={12} 
-                  color="#2ecc71" 
-                  strokeColor="#ffffff" 
-                  strokeWidth={1}
-                  opacity={0.8}
-                />
-              </StaticMap>
-            </div>
-          </div>
-          
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>            
-            {/* Circle Markers with Popups */}
-            <div>
-              <h4>Circle Markers with Automatic Popups</h4>
-              <StaticMap
-                accessToken={MAPBOX_ACCESS_TOKEN}
-                mapStyle="mapbox/streets-v11"
-                center={{ lat: 40.7128, lng: -74.0060 }}
-                zoom={12}
-                size={{ width: 400, height: 300 }}
-                attribution={true}
-                style={{ border: '1px solid #ccc' }}
-              >
-                <CircleMarker 
-                  position={{ lat: 40.7228, lng: -74.0060 }} 
-                  radius={10} 
-                  color="#9b59b6" 
-                  strokeColor="#ffffff" 
-                  strokeWidth={2}
-                >
-                  <Popup anchor="bottom">
-                    <strong>Circle Marker 1</strong><br />
-                    Radius: 10px<br />
-                    Color: Purple
-                  </Popup>
-                </CircleMarker>
-                
-                <CircleMarker 
-                  position={{ lat: 40.7028, lng: -74.0060 }} 
-                  radius={15} 
-                  color="#1abc9c" 
-                  strokeColor="#16a085" 
-                  strokeWidth={3}
-                >
-                  <Popup anchor="top">
-                    <strong>Circle Marker 2</strong><br />
-                    Radius: 15px<br />
-                    Color: Teal
-                  </Popup>
-                </CircleMarker>
-              </StaticMap>
-            </div>
-            
-            {/* No Stroke Circle Markers */}
-            <div>
-              <h4>No Stroke & Custom Styling</h4>
-              <StaticMap
-                accessToken={MAPBOX_ACCESS_TOKEN}
-                mapStyle="mapbox/satellite-v9"
-                center={{ lat: 40.7128, lng: -74.0060 }}
-                zoom={11}
-                size={{ width: 400, height: 300 }}
-                attribution={true}
-                style={{ border: '1px solid #ccc' }}
-              >
-                <CircleMarker 
-                  position={{ lat: 40.7328, lng: -74.0160 }} 
-                  radius={8} 
-                  color="#ff6b6b" 
-                  strokeWidth={0}
-                />
-                <CircleMarker 
-                  position={{ lat: 40.7128, lng: -73.9960 }} 
-                  radius={12} 
-                  color="#4ecdc4" 
-                  strokeWidth={0}
-                />
-                <CircleMarker 
-                  position={{ lat: 40.6928, lng: -74.0260 }} 
-                  radius={6} 
-                  color="#45b7d1" 
-                  strokeWidth={0}
-                />
-                <CircleMarker 
-                  position={{ lat: 40.7228, lng: -73.9860 }} 
-                  radius={18} 
-                  color="#f9ca24" 
-                  strokeColor="#f0932b" 
-                  strokeWidth={6}
-                  style={{
-                    boxShadow: '0 4px 8px rgba(0,0,0,0.3)'
-                  }}
-                />
-              </StaticMap>
-            </div>
-          </div>
-        </div>
-
-        {/* Example 6: Small Maps Grid */}
-        <div>
-          <h2>Example 6: Small Maps Grid</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
-            <div>
-              <h4>Standard Quality (retina=false)</h4>
-              <StaticMap
-                accessToken={MAPBOX_ACCESS_TOKEN}
-                mapStyle="mapbox/streets-v11"
-                center={{ lat: 40.7128, lng: -74.0060 }}
-                zoom={12}
-                size={{ width: 200, height: 150 }}
-                retina={false}
-                attribution={true}
-                style={{ border: '1px solid #ccc' }}
-              >
-                <Marker
-                  position={{ lat: 40.7128, lng: -74.0060 }}
-                  scale={0.7}
-                  color="#e74c3c"
-                />
-              </StaticMap>
-            </div>
-
-            <div>
-              <h4>Satellite View</h4>
-              <StaticMap
-                accessToken={MAPBOX_ACCESS_TOKEN}
-                mapStyle="mapbox/satellite-v9"
-                center={{ lat: 37.7749, lng: -122.4194 }}
-                zoom={12}
-                size={{ width: 200, height: 150 }}
-                attribution={true}
-                style={{ border: '1px solid #ccc' }}
-              >
-                <Marker
-                  position={{ lat: 37.7749, lng: -122.4194 }}
-                  scale={0.7}
-                  color="#ffffff"
-                  symbol="📍"
-                />
-              </StaticMap>
-            </div>
-
-            <div>
-              <h4>Dark Theme</h4>
-              <StaticMap
-                accessToken={MAPBOX_ACCESS_TOKEN}
-                mapStyle="mapbox/dark-v10"
-                center={{ lat: 51.5074, lng: -0.1278 }}
-                zoom={12}
-                size={{ width: 200, height: 150 }}
-                attribution={true}
-                style={{ border: '1px solid #ccc' }}
-              >
-                <Marker
-                  position={{ lat: 51.5074, lng: -0.1278 }}
-                  scale={0.7}
-                  color="#00ff00"
-                />
-              </StaticMap>
-            </div>
-
-            {/* Example 8: Comprehensive Popup Examples */}
-            <div>
-              <h2>Example 8: Comprehensive Popup Examples</h2>
-              <p>Showcasing all popup features and anchor positions</p>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
-                {/* All Anchor Positions */}
-                <div>
-                  <h4>All Anchor Positions</h4>
-                  <StaticMap
-                    accessToken={MAPBOX_ACCESS_TOKEN}
-                    mapStyle="mapbox/light-v11"
-                    center={{ lat: 40.7128, lng: -74.0060 }}
-                    zoom={10}
-                    size={{ width: 400, height: 300 }}
-                    attribution={true}
-                    style={{ border: '1px solid #ccc' }}
-                  >
-                    {/* Center anchor */}
-                    <Marker position={{ lat: 40.7128, lng: -74.0060 }} onClick={() => togglePopup('center-anchor')}>
-                      {popupVisible === 'center-anchor' && (
-                        <Popup anchor="center">
-                          <strong>Center Anchor</strong><br />
-                          No arrow, centered positioning
-                        </Popup>
-                      )}
-                    </Marker>
-
-                    {/* Top anchors */}
-                    <Marker position={{ lat: 40.7328, lng: -74.0260 }} color="#e74c3c" onClick={() => togglePopup('top-anchor')}>
-                      {popupVisible === 'top-anchor' && (
-                        <Popup anchor="top">
-                          <strong>Top Anchor</strong><br />
-                          Arrow points up
-                        </Popup>
-                      )}
-                    </Marker>
-
-                    <Marker position={{ lat: 40.7328, lng: -73.9860 }} color="#3498db" onClick={() => togglePopup('top-left-anchor')}>
-                      {popupVisible === 'top-left-anchor' && (
-                        <Popup anchor="top-left">
-                          <strong>Top-Left Anchor</strong><br />
-                          Arrow at top-left
-                        </Popup>
-                      )}
-                    </Marker>
-
-                    <Marker position={{ lat: 40.7328, lng: -73.9660 }} color="#f39c12" onClick={() => togglePopup('top-right-anchor')}>
-                      {popupVisible === 'top-right-anchor' && (
-                        <Popup anchor="top-right">
-                          <strong>Top-Right Anchor</strong><br />
-                          Arrow at top-right
-                        </Popup>
-                      )}
-                    </Marker>
-
-                    {/* Bottom anchors */}
-                    <Marker position={{ lat: 40.6928, lng: -74.0260 }} color="#9b59b6" onClick={() => togglePopup('bottom-anchor')}>
-                      {popupVisible === 'bottom-anchor' && (
-                        <Popup anchor="bottom">
-                          <strong>Bottom Anchor</strong><br />
-                          Arrow points down
-                        </Popup>
-                      )}
-                    </Marker>
-
-                    <Marker position={{ lat: 40.6928, lng: -73.9860 }} color="#1abc9c" onClick={() => togglePopup('bottom-left-anchor')}>
-                      {popupVisible === 'bottom-left-anchor' && (
-                        <Popup anchor="bottom-left">
-                          <strong>Bottom-Left</strong><br />
-                          Arrow at bottom-left
-                        </Popup>
-                      )}
-                    </Marker>
-
-                    <Marker position={{ lat: 40.6928, lng: -73.9660 }} color="#e67e22" onClick={() => togglePopup('bottom-right-anchor')}>
-                      {popupVisible === 'bottom-right-anchor' && (
-                        <Popup anchor="bottom-right">
-                          <strong>Bottom-Right</strong><br />
-                          Arrow at bottom-right
-                        </Popup>
-                      )}
-                    </Marker>
-
-                    {/* Left and right anchors */}
-                    <Marker position={{ lat: 40.7128, lng: -74.0460 }} color="#34495e" onClick={() => togglePopup('left-anchor')}>
-                      {popupVisible === 'left-anchor' && (
-                        <Popup anchor="left">
-                          <strong>Left Anchor</strong><br />
-                          Arrow points left
-                        </Popup>
-                      )}
-                    </Marker>
-
-                    <Marker position={{ lat: 40.7128, lng: -73.9460 }} color="#95a5a6" onClick={() => togglePopup('right-anchor')}>
-                      {popupVisible === 'right-anchor' && (
-                        <Popup anchor="right">
-                          <strong>Right Anchor</strong><br />
-                          Arrow points right
-                        </Popup>
-                      )}
-                    </Marker>
-                  </StaticMap>
-                </div>
-
-                {/* Different Offset Types */}
-                <div>
-                  <h4>Different Offset Types</h4>
-                  <StaticMap
-                    accessToken={MAPBOX_ACCESS_TOKEN}
-                    mapStyle="mapbox/light-v11"
-                    center={{ lat: 40.7128, lng: -74.0060 }}
-                    zoom={11}
-                    size={{ width: 400, height: 300 }}
-                    attribution={true}
-                    style={{ border: '1px solid #ccc' }}
-                  >
-                    {/* Single number offset */}
-                    <Marker position={{ lat: 40.7228, lng: -74.0160 }} color="#e74c3c" onClick={() => togglePopup('single-offset')}>
-                      {popupVisible === 'single-offset' && (
-                        <Popup anchor="bottom" offset={20}>
-                          <strong>Single Number Offset</strong><br />
-                          offset=20 (applies to all directions)
-                        </Popup>
-                      )}
-                    </Marker>
-
-                    {/* PointLike offset */}
-                    <Marker position={{ lat: 40.7028, lng: -74.0160 }} color="#3498db" onClick={() => togglePopup('point-offset')}>
-                      {popupVisible === 'point-offset' && (
-                        <Popup anchor="bottom" offset={{ x: 30, y: -10 }}>
-                          <strong>PointLike Offset</strong><br />
-                          offset=&#123;&#123;x: 30, y: -10&#125;&#125;
-                        </Popup>
-                      )}
-                    </Marker>
-
-                    {/* Anchor-specific offsets */}
-                    <Marker position={{ lat: 40.7128, lng: -73.9960 }} color="#f39c12" onClick={() => togglePopup('anchor-specific-offset')}>
-                      {popupVisible === 'anchor-specific-offset' && (
-                        <Popup
-                          anchor="left"
-                          offset={{
-                            left: { x: 15, y: 0 },
-                            right: { x: -15, y: 0 },
-                            top: { x: 0, y: 15 },
-                            bottom: { x: 0, y: -15 }
-                          }}
-                        >
-                          <strong>Anchor-Specific Offset</strong><br />
-                          Different offsets per anchor
-                        </Popup>
-                      )}
-                    </Marker>
-                  </StaticMap>
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                {/* Close Button Example */}
-                <div>
-                  <h4>Close Button & Max Width</h4>
-                  <StaticMap
-                    accessToken={MAPBOX_ACCESS_TOKEN}
-                    mapStyle="mapbox/light-v11"
-                    center={{ lat: 40.7128, lng: -74.0060 }}
-                    zoom={12}
-                    size={{ width: 400, height: 800 }}
-                    attribution={true}
-                    style={{ border: '1px solid #ccc' }}
-                  >
-                    <Marker position={{ lat: 40.7128, lng: -74.0060 }} onClick={() => togglePopup('close-button')}>
-                      {popupVisible === 'close-button' && (
-                        <Popup
-                          anchor="bottom"
-                          closeButton={true}
-                          maxWidth="300px"
-                          onClose={() => setPopupVisible(null)}
-                        >
-                          <strong>Popup with Close Button</strong><br />
-                          This popup has a close button in the top-right corner and a max width of 300px.
-                          You can also set maxWidth to 'none' for unlimited width.
-                        </Popup>
-                      )}
-                    </Marker>
-                  </StaticMap>
-                </div>
-
-                {/* Custom Styling */}
-                <div>
-                  <h4>Custom Styling</h4>
-                  <StaticMap
-                    accessToken={MAPBOX_ACCESS_TOKEN}
-                    mapStyle="mapbox/dark-v11"
-                    center={{ lat: 40.7128, lng: -74.0060 }}
-                    zoom={12}
-                    size={{ width: 400, height: 300 }}
-                    attribution={true}
-                    style={{ border: '1px solid #ccc' }}
-                  >
-                    <Marker position={{ lat: 40.7128, lng: -74.0060 }} color="#00ff00" onClick={() => togglePopup('custom-style')}>
-                      {popupVisible === 'custom-style' && (
-                        <Popup
-                          anchor="bottom"
-                          className="custom-popup"
-                          style={{
-                            filter: 'drop-shadow(0 4px 8px rgba(0,255,0,0.3))',
-                          }}
-                        >
-                          <div style={{
-                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                            color: 'white',
-                            padding: '15px',
-                            textAlign: 'center',
-                            margin: '-10px -10px -15px',
-                          }}>
-                            <strong>🎨 Custom Styled Popup</strong><br />
-                            <small>With gradient background and custom CSS</small>
-                          </div>
-                        </Popup>
-                      )}
-                    </Marker>
-                  </StaticMap>
-                </div>
-              </div>
-
-              <div style={{ marginTop: '20px' }}>
-                <h4>Rich Content Example</h4>
-                <StaticMap
-                  accessToken={MAPBOX_ACCESS_TOKEN}
-                  mapStyle="mapbox/outdoors-v12"
-                  center={{ lat: 40.7389, lng: -73.9857 }}
-                  zoom={13}
-                  size={{ width: 600, height: 500 }}
-                  attribution={true}
-                  style={{ border: '1px solid #ccc' }}
-                >
-                  <Marker position={{ lat: 40.7289, lng: -73.9857 }} color="#ff4757" onClick={() => togglePopup('rich-content')}>
-                    {popupVisible === 'rich-content' && (
-                      <Popup
-                        anchor="bottom"
-                        closeButton={true}
-                        maxWidth="350px"
-                        onClose={() => setPopupVisible(null)}
-                      >
-                        <div style={{ fontSize: '14px', lineHeight: '1.4' }}>
-                          <h3 style={{ margin: '0 0 10px 0', color: '#2c3e50' }}>Times Square</h3>
-                          <img
-                            src="https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=300&h=150&fit=crop&crop=entropy&cs=tinysrgb"
-                            alt="Times Square"
-                            style={{ width: '100%', height: '120px', objectFit: 'cover', marginBottom: '10px' }}
-                          />
-                          <p style={{ margin: '0 0 10px 0', color: '#555' }}>
-                            The bustling heart of Manhattan, known for its bright lights, Broadway theaters, and endless energy.
-                          </p>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ fontSize: '12px', color: '#888' }}>📍 Manhattan, NY</span>
-                            <button style={{
-                              background: '#3498db',
-                              color: 'white',
-                              border: 'none',
-                              padding: '5px 10px',
-                              fontSize: '12px',
-                              cursor: 'pointer'
-                            }}>
-                              Learn More
-                            </button>
-                          </div>
-                        </div>
-                      </Popup>
-                    )}
-                  </Marker>
-                </StaticMap>
-              </div>
-            </div>
-          </div>
-
-          <div style={{ marginTop: '40px', padding: '20px', backgroundColor: '#f8f9fa' }}>
-            <h3>Getting Started</h3>
-            <p>To use this library with your own maps:</p>
-            <ol>
-              <li>Sign up for a free Mapbox account at <a href="https://account.mapbox.com/" target="_blank">https://account.mapbox.com/</a></li>
-              <li>Get your access token from the Mapbox dashboard</li>
-              <li>Replace <code>MAPBOX_ACCESS_TOKEN</code> in this demo with your token</li>
-              <li>Start building amazing static map experiences!</li>
-            </ol>
-          </div>
-        </div>
       </div>
     </div>
   );
 }
-
-export default App;     
