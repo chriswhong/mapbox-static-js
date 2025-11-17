@@ -47,7 +47,7 @@ export const StaticMap: React.FC<StaticMapProps> = ({
             bearing,
             pitch,
             retina,
-            attribution,
+            _attribution: attribution,
             logo,
         });
 
