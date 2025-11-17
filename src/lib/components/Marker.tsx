@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import type { MarkerProps, CustomMarkerProps } from '../types';
 import { useStaticMapContext, MarkerPositionContext } from './context';
 
@@ -98,6 +98,9 @@ export const Marker: React.FC<MarkerProps> = ({
 }) => {
   const { latLngToPixel, isLoaded } = useStaticMapContext();
   const markerSize = 30 * scale;
+  
+  // Internal state for popup visibility when popups are children
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
 
   const { x, y } = useMemo(() => {
     if (!isLoaded) return { x: 0, y: 0 };
@@ -138,12 +141,22 @@ export const Marker: React.FC<MarkerProps> = ({
     };
   }, [children]);
 
+  // Handle click events - toggle popup if popup children exist, otherwise use provided onClick
+  const handleMarkerClick = useCallback((e: React.MouseEvent) => {
+    if (popupChildren.length > 0) {
+      setIsPopupVisible(!isPopupVisible);
+    }
+    if (onClick) {
+      onClick(e);
+    }
+  }, [popupChildren, isPopupVisible, onClick]);
+
   if (!isLoaded) return null;
 
   const markerStyle: React.CSSProperties = {
     left: x,
     top: y,
-    cursor: onClick ? 'pointer' : 'default',
+    cursor: (onClick || popupChildren.length > 0) ? 'pointer' : 'default',
     ...style,
   };
 
@@ -156,17 +169,20 @@ export const Marker: React.FC<MarkerProps> = ({
     />
   );
 
+  // Filter popup children based on visibility state
+  const visiblePopupChildren = popupChildren.length > 0 && isPopupVisible ? popupChildren : [];
+
   return (
     <MarkerPositionContext.Provider value={markerPositionContext}>
       <div
-        className={`mapbox-static-marker ${onClick ? 'static-map-interactive' : ''} ${className || ''}`}
+        className={`mapbox-static-marker ${(onClick || popupChildren.length > 0) ? 'static-map-interactive' : ''} ${className || ''}`}
         style={markerStyle}
-        onClick={onClick}
+        onClick={handleMarkerClick}
       >
         {markerContent}
       </div>
       {/* Render popup children outside marker div to avoid positioning issues */}
-      {popupChildren}
+      {visiblePopupChildren}
     </MarkerPositionContext.Provider>
   );
 };
@@ -180,13 +196,22 @@ export const CustomMarker: React.FC<CustomMarkerProps> = ({
   style,
 }) => {
   const { latLngToPixel, isLoaded } = useStaticMapContext();
+  
+  // Internal state for popup visibility when popups are children
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
 
   const { x, y } = useMemo(() => {
     if (!isLoaded) return { x: 0, y: 0 };
     return latLngToPixel(position);
   }, [position, latLngToPixel, isLoaded]);
 
-  const markerPositionContext = useMemo(() => ({ position }), [position]);
+  const markerPositionContext = useMemo(() => ({ 
+    position,
+    dimensions: {
+      width: 40, // Default max width from CSS
+      height: 40 // Default max height from CSS
+    }
+  }), [position]);
 
   // Separate popup children from marker content  
   const { popupChildren, markerChildren } = useMemo(() => {
@@ -214,21 +239,34 @@ export const CustomMarker: React.FC<CustomMarkerProps> = ({
     };
   }, [children]);
 
+  // Handle click events - toggle popup if popup children exist, otherwise use provided onClick
+  const handleMarkerClick = useCallback((e: React.MouseEvent) => {
+    if (popupChildren.length > 0) {
+      setIsPopupVisible(!isPopupVisible);
+    }
+    if (onClick) {
+      onClick(e);
+    }
+  }, [popupChildren, isPopupVisible, onClick]);
+
   if (!isLoaded) return null;
 
   const markerStyle: React.CSSProperties = {
     left: x,
     top: y,
-    cursor: onClick ? 'pointer' : 'default',
+    cursor: (onClick || popupChildren.length > 0) ? 'pointer' : 'default',
     ...style,
   };
+
+  // Filter popup children based on visibility state
+  const visiblePopupChildren = popupChildren.length > 0 && isPopupVisible ? popupChildren : [];
 
   return (
     <MarkerPositionContext.Provider value={markerPositionContext}>
       <div
-        className={`mapbox-static-custom-marker ${onClick ? 'static-map-interactive' : ''} ${className || ''}`}
+        className={`mapbox-static-custom-marker ${(onClick || popupChildren.length > 0) ? 'static-map-interactive' : ''} ${className || ''}`}
         style={markerStyle}
-        onClick={onClick}
+        onClick={handleMarkerClick}
       >
         <img
           src={imageUrl}
@@ -242,7 +280,7 @@ export const CustomMarker: React.FC<CustomMarkerProps> = ({
         {markerChildren}
       </div>
       {/* Render popup children outside marker div */}
-      {popupChildren}
+      {visiblePopupChildren}
     </MarkerPositionContext.Provider>
   );
 };

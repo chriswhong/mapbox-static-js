@@ -255,6 +255,8 @@
 
 /* Circle marker styles */
 .static-map-circle-marker {
+  position: absolute;
+  border-radius: 50%;
   transition: transform 0.2s ease, opacity 0.2s ease;
 }
 

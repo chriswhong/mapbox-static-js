@@ -26,8 +26,8 @@ function App() {
 
         {/* Example 1: Center + Zoom with Default Markers */}
         <div>
-          <h2>Example 1: Center + Zoom with Popup as Marker Children</h2>
-          <p>NYC area with popups as children of markers (automatic position inheritance)</p>
+          <h2>Example 1: Automatic Popup Management (NEW!)</h2>
+          <p>NYC area with popups as children of markers - no state management required!</p>
           <div style={{ position: 'relative' }}>
             <StaticMap
               accessToken={MAPBOX_ACCESS_TOKEN}
@@ -38,24 +38,22 @@ function App() {
               attribution={true}
               style={{ border: '2px solid #ddd' }}
             >
+              {/* Automatic popup management - just click the marker! */}
               <Marker 
                 position={{ lat: 40.7589, lng: -73.9851 }}
                 color="#ff6b6b"
                 symbol="🏢"
-                scale={1}
-                onClick={() => togglePopup('marker1')}
+                scale={2}
               >
-                {popupVisible === 'marker1' && (
-                  <Popup
-                    offset={{ x: 0, y: 0 }}
-                    closeButton
-                    onClose={() => setPopupVisible(null)}
-                    anchor="bottom-left"
-                    >
-                    <strong>New York City</strong><br/>
-                    The Big Apple
-                  </Popup>
-                )}
+                <Popup
+                  offset={{ x: 0, y: 0 }}
+                  closeButton
+                  anchor="bottom-left"
+                >
+                  <strong>New York City</strong><br/>
+                  The Big Apple<br/>
+                  <em>Click marker to toggle - no state management needed!</em>
+                </Popup>
               </Marker>
 
               <Marker
@@ -63,15 +61,12 @@ function App() {
                 color="#4ecdc4"
                 symbol="🗽"
                 scale={1}
-                onClick={() => togglePopup('marker2')}
               >
-                {popupVisible === 'marker2' && (
-                  <Popup anchor="top" offset={{ x: 0, y: -15 }}>
-                    <strong>Statue of Liberty</strong><br />
-                    Liberty Island<br />
-                    <em>No position prop needed!</em>
-                  </Popup>
-                )}
+                <Popup anchor="top" offset={{ x: 0, y: -15 }}>
+                  <strong>Statue of Liberty</strong><br />
+                  Liberty Island<br />
+                  <em>Automatically shows/hides on click!</em>
+                </Popup>
               </Marker>
 
               <Marker
@@ -88,8 +83,8 @@ function App() {
 
         {/* Example 2: Bounds with Custom Markers */}
         <div>
-          <h2>Example 2: Mixed Pattern - Children and Independent Popups</h2>
-          <p>San Francisco Bay Area showing both patterns</p>
+          <h2>Example 2: Mixed Pattern - Automatic and Manual Popups</h2>
+          <p>San Francisco Bay Area showing both automatic and manual popup patterns</p>
           <StaticMap
             accessToken={MAPBOX_ACCESS_TOKEN}
             mapStyle="mapbox/satellite-v9"
@@ -103,7 +98,8 @@ function App() {
             attribution={true}
             style={{ border: '2px solid #ddd' }}
           >
-            <Marker position={{ lat: 37.7749, lng: -122.4194 }} onClick={() => togglePopup('sf')}>
+            {/* Automatic popup management - no onClick needed */}
+            <Marker position={{ lat: 37.7749, lng: -122.4194 }}>
               <div style={{
                 backgroundColor: '#9c27b0',
                 color: 'white',
@@ -114,13 +110,11 @@ function App() {
               }}>
                 San Francisco
               </div>
-              {popupVisible === 'sf' && (
-                <Popup anchor="bottom" offset={{ x: 0, y: -25 }}>
-                  <strong>San Francisco</strong><br />
-                  Custom styled marker<br />
-                  with child popup
-                </Popup>
-              )}
+              <Popup anchor="bottom" offset={{ x: 0, y: -25 }}>
+                <strong>San Francisco</strong><br />
+                Custom styled marker<br />
+                with automatic popup
+              </Popup>
             </Marker>
 
             <Marker position={{ lat: 37.7849, lng: -122.4094 }}>
@@ -132,29 +126,27 @@ function App() {
               }} />
             </Marker>
 
+            {/* Custom marker with automatic popup */}
             <CustomMarker
               position={{ lat: 37.8199, lng: -122.4783 }}
               imageUrl="https://docs.mapbox.com/help/demos/custom-markers-gl-js/mapbox-icon.png"
-              onClick={() => togglePopup('custom1')}
             >
-              {popupVisible === 'custom1' && (
-                <Popup anchor="bottom" offset={{ x: 0, y: -45 }}>
-                  <strong>Golden Gate Bridge</strong><br />
-                  Custom marker with<br />
-                  inherited position popup
-                </Popup>
-              )}
+              <Popup anchor="bottom" offset={{ x: 0, y: -45 }}>
+                <strong>Golden Gate Bridge</strong><br />
+                Custom marker with<br />
+                automatic popup management
+              </Popup>
             </CustomMarker>
 
-            {/* Independent popup (still works) */}
+            {/* Manual popup example (still works) */}
             {popupVisible === 'independent' && (
               <Popup
                 position={{ lat: 37.7849, lng: -122.4094 }}
                 anchor="left"
                 offset={{ x: 15, y: 0 }}
               >
-                <strong>Independent Popup</strong><br />
-                Has its own position prop
+                <strong>Manual Popup</strong><br />
+                Still supports manual state management
               </Popup>
             )}
 
@@ -283,19 +275,22 @@ function App() {
           </StaticMap>
         </div>
 
-        {/* Example 5: Popup Pattern Comparison */}
+        {/* Example 5: New vs Old Popup Pattern Comparison */}
         <div>
-          <h2>Example 5: Popup Pattern Comparison</h2>
-          <p>Side-by-side comparison of popup as child vs independent popup</p>
+          <h2>Example 5: New vs Old Popup Pattern Comparison</h2>
+          <p>Side-by-side comparison of new automatic popup management vs old manual state management</p>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
             <div>
-              <h4>Popup as Marker Child (Recommended)</h4>
+              <h4>✨ NEW: Automatic Popup Management</h4>
+              <p style={{ fontSize: '14px', color: '#666' }}>
+                Simply add a Popup as a child - no onClick or state management needed!
+              </p>
               <StaticMap
                 accessToken={MAPBOX_ACCESS_TOKEN}
                 mapStyle="mapbox/streets-v11"
                 center={{ lat: 40.7128, lng: -74.0060 }}
                 zoom={13}
-                size={{ width: 280, height: 200 }}
+                size={{ width: 300, height: 200 }}
                 attribution={true}
                 style={{ border: '1px solid #ccc' }}
               >
@@ -303,27 +298,39 @@ function App() {
                   position={{ lat: 40.7128, lng: -74.0060 }}
                   color="#e74c3c"
                   symbol="📍"
-                  onClick={() => togglePopup('child-popup')}
                 >
-                  {popupVisible === 'child-popup' && (
-                    <Popup anchor="bottom" offset={{ x: 0, y: -30 }}>
-                      <strong>Child Popup</strong><br />
-                      Position inherited from marker<br />
-                      <em>Less code, cleaner structure</em>
-                    </Popup>
-                  )}
+                  <Popup anchor="bottom" offset={{ x: 0, y: -30 }}>
+                    <strong>Auto Popup</strong><br />
+                    Click marker to toggle!<br />
+                    <em>No code required</em>
+                  </Popup>
                 </Marker>
               </StaticMap>
+              <div style={{ 
+                background: '#e8f5e8', 
+                padding: '10px', 
+                margin: '10px 0',
+                fontSize: '12px',
+                fontFamily: 'monospace'
+              }}>
+                <strong>Code:</strong><br />
+                &lt;Marker position=&#123;pos&#125;&gt;<br />
+                &nbsp;&nbsp;&lt;Popup&gt;Content&lt;/Popup&gt;<br />
+                &lt;/Marker&gt;
+              </div>
             </div>
 
             <div>
-              <h4>Independent Popup (Still Supported)</h4>
+              <h4>🔧 OLD: Manual State Management</h4>
+              <p style={{ fontSize: '14px', color: '#666' }}>
+                Requires onClick handlers and state management (still supported)
+              </p>
               <StaticMap
                 accessToken={MAPBOX_ACCESS_TOKEN}
                 mapStyle="mapbox/streets-v11"
                 center={{ lat: 40.7128, lng: -74.0060 }}
                 zoom={13}
-                size={{ width: 280, height: 200 }}
+                size={{ width: 300, height: 200 }}
                 attribution={true}
                 style={{ border: '1px solid #ccc' }}
               >
@@ -331,20 +338,31 @@ function App() {
                   position={{ lat: 40.7128, lng: -74.0060 }}
                   color="#3498db"
                   symbol="📍"
-                  onClick={() => togglePopup('independent-popup')}
+                  onClick={() => togglePopup('manual-popup')}
                 />
-                {popupVisible === 'independent-popup' && (
+                {popupVisible === 'manual-popup' && (
                   <Popup
                     position={{ lat: 40.7128, lng: -74.0060 }}
                     anchor="bottom"
                     offset={{ x: 0, y: -30 }}
                   >
-                    <strong>Independent Popup</strong><br />
-                    Has its own position prop<br />
+                    <strong>Manual Popup</strong><br />
+                    Requires state management<br />
                     <em>More flexible positioning</em>
                   </Popup>
                 )}
               </StaticMap>
+              <div style={{ 
+                background: '#fff5e6', 
+                padding: '10px', 
+                margin: '10px 0',
+                fontSize: '12px',
+                fontFamily: 'monospace'
+              }}>
+                <strong>Code:</strong><br />
+                &lt;Marker onClick=&#123;toggle&#125; /&gt;<br />
+                &#123;visible && &lt;Popup position=&#123;pos&#125;&gt;...&lt;/Popup&gt;&#125;
+              </div>
             </div>
           </div>
         </div>
@@ -443,7 +461,7 @@ function App() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>            
             {/* Circle Markers with Popups */}
             <div>
-              <h4>Circle Markers with Popups</h4>
+              <h4>Circle Markers with Automatic Popups</h4>
               <StaticMap
                 accessToken={MAPBOX_ACCESS_TOKEN}
                 mapStyle="mapbox/streets-v11"
@@ -459,15 +477,12 @@ function App() {
                   color="#9b59b6" 
                   strokeColor="#ffffff" 
                   strokeWidth={2}
-                  onClick={() => togglePopup('circle1')}
                 >
-                  {popupVisible === 'circle1' && (
-                    <Popup anchor="bottom">
-                      <strong>Circle Marker 1</strong><br />
-                      Radius: 10px<br />
-                      Color: Purple
-                    </Popup>
-                  )}
+                  <Popup anchor="bottom">
+                    <strong>Circle Marker 1</strong><br />
+                    Radius: 10px<br />
+                    Color: Purple
+                  </Popup>
                 </CircleMarker>
                 
                 <CircleMarker 
@@ -476,15 +491,12 @@ function App() {
                   color="#1abc9c" 
                   strokeColor="#16a085" 
                   strokeWidth={3}
-                  onClick={() => togglePopup('circle2')}
                 >
-                  {popupVisible === 'circle2' && (
-                    <Popup anchor="top">
-                      <strong>Circle Marker 2</strong><br />
-                      Radius: 15px<br />
-                      Color: Teal
-                    </Popup>
-                  )}
+                  <Popup anchor="top">
+                    <strong>Circle Marker 2</strong><br />
+                    Radius: 15px<br />
+                    Color: Teal
+                  </Popup>
                 </CircleMarker>
               </StaticMap>
             </div>
