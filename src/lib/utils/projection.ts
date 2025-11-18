@@ -1,14 +1,27 @@
-import type { LatLng, Bounds, Size } from '../types';
+import type { LngLatLike, Bounds, LngLatBoundsLike, Size } from '../types';
 
 /**
- * Convert latitude/longitude coordinates to pixel coordinates within a static map
+ * Normalize LngLatLike to a consistent { lng, lat } format
+ */
+function normalizeLngLat(lngLat: LngLatLike): { lng: number; lat: number } {
+  if (Array.isArray(lngLat)) {
+    return { lng: lngLat[0], lat: lngLat[1] };
+  }
+  if ('lon' in lngLat) {
+    return { lng: lngLat.lon, lat: lngLat.lat };
+  }
+  return { lng: lngLat.lng, lat: lngLat.lat };
+}
+
+/**
+ * Convert a latitude/longitude coordinate to pixel coordinates within the map bounds
  */
 export function latLngToPixel(
-  latLng: LatLng,
+  latLng: LngLatLike,
   bounds: Bounds,
   size: Size
 ): { x: number; y: number } {
-  const { lat, lng } = latLng;
+  const { lat, lng } = normalizeLngLat(latLng);
   const { north, south, east, west } = bounds;
   const { width, height } = size;
 
@@ -30,7 +43,7 @@ export function pixelToLatLng(
   pixel: { x: number; y: number },
   bounds: Bounds,
   size: Size
-): LatLng {
+): LngLatLike {
   const { x, y } = pixel;
   const { north, south, east, west } = bounds;
   const { width, height } = size;
@@ -50,7 +63,7 @@ export function pixelToLatLng(
  * Calculate bounds from center point and zoom level
  */
 export function calculateBoundsFromCenterZoom(
-  center: LatLng,
+  center: LngLatLike,
   zoom: number,
   size: Size
 ): Bounds {
@@ -65,14 +78,15 @@ export function calculateBoundsFromCenterZoom(
   const latSpan = degreesPerPixel * size.height;
   
   // Apply latitude correction for Mercator projection
-  const latCorrection = Math.cos(center.lat * Math.PI / 180);
+  const normalizedCenter = normalizeLngLat(center);
+  const latCorrection = Math.cos(normalizedCenter.lat * Math.PI / 180);
   const correctedLngSpan = lngSpan / latCorrection;
   
   // Calculate bounds with normalization
-  let west = center.lng - correctedLngSpan / 2;
-  let east = center.lng + correctedLngSpan / 2;
-  let south = center.lat - latSpan / 2;
-  let north = center.lat + latSpan / 2;
+  let west = normalizedCenter.lng - correctedLngSpan / 2;
+  let east = normalizedCenter.lng + correctedLngSpan / 2;
+  let south = normalizedCenter.lat - latSpan / 2;
+  let north = normalizedCenter.lat + latSpan / 2;
   
   // Normalize longitude to stay within [-180, 180]
   west = normalizeLongitude(west);
@@ -97,11 +111,11 @@ export function calculateBoundsFromCenterZoom(
 export function calculateCenterZoomFromBounds(
   bounds: Bounds,
   size: Size
-): { center: LatLng; zoom: number } {
+): { center: LngLatLike; zoom: number } {
   const { north, south, east, west } = bounds;
   
   // Calculate center
-  const center: LatLng = {
+  const center: LngLatLike = {
     lat: (north + south) / 2,
     lng: (east + west) / 2,
   };

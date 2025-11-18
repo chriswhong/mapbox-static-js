@@ -1,0 +1,569 @@
+import React from 'react';
+import { examplesByCategory } from './examples';
+import { Example } from './components/Example';
+import { SectionHeader } from './components/SectionHeader';
+import { PropTable } from './components/PropTable';
+import { InstallationSection } from './components/InstallationSection';
+import { TableOfContents } from './components/TableOfContents';
+import { staticMapProps, markerProps, circleMarkerProps, popupProps } from './data/componentProps';
+
+// Replace this with your actual Mapbox access token
+const MAPBOX_ACCESS_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || 'your_mapbox_access_token_here';
+
+// Table of contents data
+const tocItems = [
+  { id: 'installation', title: 'Installation', level: 1 },
+  { id: 'quick-start', title: 'Quick Start', level: 2 },
+  { id: 'staticmap', title: 'StaticMap Component', level: 1 },
+  { id: 'staticmap-props', title: 'Props', level: 2 },
+  { id: 'staticmap-examples', title: 'Examples', level: 2 },
+  { id: 'marker', title: 'Marker Component', level: 1 },
+  { id: 'marker-props', title: 'Props', level: 2 },
+  { id: 'marker-examples', title: 'Examples', level: 2 },
+  { id: 'popup', title: 'Popup Component', level: 1 },
+  { id: 'popup-props', title: 'Props', level: 2 },
+  { id: 'popup-examples', title: 'Examples', level: 2 },
+  { id: 'circlemarker', title: 'CircleMarker Component', level: 1 },
+  { id: 'circlemarker-props', title: 'Props', level: 2 },
+  { id: 'features', title: 'Key Features', level: 1 },
+  { id: 'support', title: 'Support', level: 1 }
+];
+
+export default function App() {
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-white font-sans">
+      {/* Hero Section */}
+      <header className="text-center py-15 bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
+        <div className="max-w-6xl mx-auto px-5">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 drop-shadow-lg">
+            🗺️ Mapbox Static React
+          </h1>
+          <p className="text-lg md:text-2xl mb-8 opacity-95 max-w-4xl mx-auto leading-relaxed">
+            A comprehensive React library for creating beautiful static maps with markers, popups, and automatic interaction management.
+          </p>
+          
+          {/* Feature badges */}
+          <div className="flex flex-wrap justify-center gap-4 mb-8">
+            <div className="bg-white bg-opacity-20 px-4 py-2 rounded-full text-sm font-medium">
+              ✨ Zero Config
+            </div>
+            <div className="bg-white bg-opacity-20 px-4 py-2 rounded-full text-sm font-medium">
+              🚀 TypeScript
+            </div>
+            <div className="bg-white bg-opacity-20 px-4 py-2 rounded-full text-sm font-medium">
+              📱 Mobile Responsive
+            </div>
+            <div className="bg-white bg-opacity-20 px-4 py-2 rounded-full text-sm font-medium">
+              🎯 Auto Popup Management
+            </div>
+          </div>
+          
+          {/* CTA Buttons */}
+          <div className="flex flex-wrap justify-center gap-4">
+            <a
+              href="#installation"
+              className="bg-white bg-opacity-90 text-indigo-600 px-8 py-3 rounded-md no-underline font-semibold text-lg shadow-lg transform hover:-translate-y-1 transition-transform"
+            >
+              Get Started →
+            </a>
+            <a
+              href="#staticmap-examples"
+              className="bg-transparent text-white px-8 py-3 rounded-md no-underline font-semibold text-lg border-2 border-white border-opacity-70 hover:bg-white hover:bg-opacity-10 hover:border-opacity-100 transition-all"
+            >
+              View Examples
+            </a>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <div className="p-5">
+        <div className="max-w-6xl mx-auto">
+          <div className={`grid gap-10 ${isMobile ? 'grid-cols-1' : 'grid-cols-[280px_1fr]'}`}>
+            {/* Sidebar - Table of Contents */}
+            {!isMobile && (
+              <aside>
+                <TableOfContents items={tocItems} />
+              </aside>
+            )}
+
+            {/* Main Documentation */}
+            <main>
+              {/* Installation Section */}
+              <section id="installation">
+                <InstallationSection />
+              </section>
+
+              {/* StaticMap Documentation */}
+              <section id="staticmap">
+                <SectionHeader 
+                  title="📍 StaticMap Component" 
+                  description="The core component for rendering static maps with Mapbox"
+                />
+                
+                <div id="staticmap-props">
+                  <h3 className="text-2xl mb-4 text-gray-700">Props Reference</h3>
+                  <PropTable props={staticMapProps} />
+                </div>
+
+                <div id="staticmap-examples">
+                  <h3 className="text-2xl mb-6 text-gray-700">Examples</h3>
+                  {examplesByCategory.StaticMap?.map((example) => (
+                    <Example
+                      key={example.id}
+                      example={example}
+                      accessToken={MAPBOX_ACCESS_TOKEN}
+                    />
+                  ))}
+                </div>
+              </section>
+
+              {/* Marker Documentation */}
+              <section id="marker">
+                <SectionHeader 
+                  title="📌 Marker Component" 
+                  description="Add custom markers with automatic popup management"
+                />
+                
+                <div id="marker-props">
+                  <h3 className="text-2xl mb-4 text-gray-700">Props Reference</h3>
+                  <PropTable props={markerProps} />
+                </div>
+
+                <div id="marker-examples">
+                  <h3 className="text-2xl mb-6 text-gray-700">Examples</h3>
+                  {examplesByCategory.Marker?.map((example) => (
+                    <Example
+                      key={example.id}
+                      example={example}
+                      accessToken={MAPBOX_ACCESS_TOKEN}
+                    />
+                  ))}
+                </div>
+              </section>
+
+              {/* Popup Documentation */}
+              <section id="popup">
+                <SectionHeader 
+                  title="💬 Popup Component" 
+                  description="Display interactive popups with flexible positioning"
+                />
+                
+                <div id="popup-props">
+                  <h3 className="text-2xl mb-4 text-gray-700">Props Reference</h3>
+                  <PropTable props={popupProps} />
+                </div>
+
+                <div className="p-5 bg-yellow-50 border border-yellow-200 rounded-lg mb-6 border-l-4 border-l-yellow-500">
+                  <h4 className="mb-2 text-yellow-800 flex items-center font-semibold">
+                    <span className="mr-2">💡</span>
+                    Automatic Popup Management
+                  </h4>
+                  <p className="text-yellow-800 m-0">
+                    Simply add a Popup as a child of any Marker. No state management, no event handlers, no complexity!
+                    The library automatically handles show/hide on marker clicks.
+                  </p>
+                </div>
+              </section>
+
+              {/* CircleMarker Documentation */}
+              <section id="circlemarker">
+                <SectionHeader 
+                  title="⭕ CircleMarker Component" 
+                  description="Circular markers with customizable styling"
+                />
+                
+                <div id="circlemarker-props">
+                  <h3 className="text-2xl mb-4 text-gray-700">Props Reference</h3>
+                  <PropTable props={circleMarkerProps} />
+                </div>
+
+                <div className="p-5 bg-blue-50 border border-blue-200 rounded-lg mb-6 border-l-4 border-l-blue-500">
+                  <p className="text-blue-800 m-0">
+                    <strong>Note:</strong> CircleMarker examples will be available in the next update.
+                    For now, check out Marker examples which demonstrate similar functionality.
+                  </p>
+                </div>
+              </section>
+
+              {/* Key Features */}
+              <section id="features">
+                <SectionHeader 
+                  title="✨ Key Features" 
+                  description="What makes Mapbox Static React special"
+                />
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                  <div className="p-6 bg-gray-50 rounded-lg border border-gray-200">
+                    <h4 className="text-green-600 mb-3 font-semibold">🚀 Zero Configuration</h4>
+                    <p className="text-gray-700 m-0">
+                      No complex setup or configuration. Import, use, and get beautiful maps instantly.
+                    </p>
+                  </div>
+                  
+                  <div className="p-6 bg-gray-50 rounded-lg border border-gray-200">
+                    <h4 className="text-blue-600 mb-3 font-semibold">🎯 Smart Popup Management</h4>
+                    <p className="text-gray-700 m-0">
+                      Automatic show/hide functionality. Just nest Popup components inside Markers.
+                    </p>
+                  </div>
+                  
+                  <div className="p-6 bg-gray-50 rounded-lg border border-gray-200">
+                    <h4 className="text-purple-600 mb-3 font-semibold">📱 Mobile Responsive</h4>
+                    <p className="text-gray-700 m-0">
+                      Built with mobile-first design. Maps look great on any device.
+                    </p>
+                  </div>
+                  
+                  <div className="p-6 bg-gray-50 rounded-lg border border-gray-200">
+                    <h4 className="text-red-600 mb-3 font-semibold">🔧 TypeScript Support</h4>
+                    <p className="text-gray-700 m-0">
+                      Full TypeScript definitions included. Get autocomplete and type safety.
+                    </p>
+                  </div>
+                  
+                  <div className="p-6 bg-gray-50 rounded-lg border border-gray-200">
+                    <h4 className="text-orange-600 mb-3 font-semibold">⚡ High Performance</h4>
+                    <p className="text-gray-700 m-0">
+                      Static map generation with optimized rendering for fast loading.
+                    </p>
+                  </div>
+                  
+                  <div className="p-6 bg-gray-50 rounded-lg border border-gray-200">
+                    <h4 className="text-teal-600 mb-3 font-semibold">🎨 Highly Customizable</h4>
+                    <p className="text-gray-700 m-0">
+                      Custom markers, styles, colors, and overlays. Make it your own.
+                    </p>
+                  </div>
+                </div>
+              </section>
+
+              {/* Support Section */}
+              <section id="support">
+                <SectionHeader 
+                  title="🤝 Support & Community" 
+                  description="Get help and contribute to the project"
+                />
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                  <div className="p-5 bg-green-50 rounded-lg text-center border border-green-200">
+                    <h4 className="text-green-800 mb-3 font-semibold">📖 Documentation</h4>
+                    <p className="text-green-800 mb-4 m-0">You're reading it!</p>
+                    <span className="text-gray-600 text-sm">Complete API reference and examples</span>
+                  </div>
+                  
+                  <div className="p-5 bg-blue-50 rounded-lg text-center border border-blue-200">
+                    <h4 className="text-blue-800 mb-3 font-semibold">🐛 Issues</h4>
+                    <p className="text-blue-800 mb-4 m-0">Found a bug?</p>
+                    <span className="text-gray-600 text-sm">Report it on GitHub Issues</span>
+                  </div>
+                  
+                  <div className="p-5 bg-yellow-50 rounded-lg text-center border border-yellow-200">
+                    <h4 className="text-yellow-800 mb-3 font-semibold">💡 Feature Requests</h4>
+                    <p className="text-yellow-800 mb-4 m-0">Have an idea?</p>
+                    <span className="text-gray-600 text-sm">Share it with the community</span>
+                  </div>
+                </div>
+              </section>
+
+              {/* Footer */}
+              <footer className="mt-20 py-10 border-t border-gray-200 text-center text-gray-600">
+                <p className="mb-4 m-0">
+                  Built with ❤️ for the React and Mapbox community
+                </p>
+                <p className="text-sm m-0">
+                  Powered by <a href="https://mapbox.com" target="_blank" rel="noopener noreferrer" className="text-blue-600">Mapbox</a> • 
+                  Made with <a href="https://reactjs.org" target="_blank" rel="noopener noreferrer" className="text-blue-600">React</a> • 
+                  Written in <a href="https://www.typescriptlang.org" target="_blank" rel="noopener noreferrer" className="text-blue-600">TypeScript</a>
+                </p>
+              </footer>
+            </main>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+          {/* Main Documentation */}
+          <main>
+            {/* Installation Section */}
+            <section id="installation">
+              <InstallationSection />
+            </section>
+
+            {/* StaticMap Documentation */}
+            <section id="staticmap">
+              <SectionHeader 
+                title="📍 StaticMap Component" 
+                description="The core component for rendering static maps with Mapbox"
+              />
+              
+              <div id="staticmap-props">
+                <h3 style={{ fontSize: '1.5rem', marginBottom: '16px', color: '#495057' }}>Props Reference</h3>
+                <PropTable props={staticMapProps} />
+              </div>
+
+              <div id="staticmap-examples">
+                <h3 style={{ fontSize: '1.5rem', marginBottom: '24px', color: '#495057' }}>Examples</h3>
+                {examplesByCategory.StaticMap?.map((example) => (
+                  <Example
+                    key={example.id}
+                    example={example}
+                    accessToken={MAPBOX_ACCESS_TOKEN}
+                  />
+                ))}
+              </div>
+            </section>
+
+            {/* Marker Documentation */}
+            <section id="marker">
+              <SectionHeader 
+                title="📌 Marker Component" 
+                description="Add custom markers with automatic popup management"
+              />
+              
+              <div id="marker-props">
+                <h3 style={{ fontSize: '1.5rem', marginBottom: '16px', color: '#495057' }}>Props Reference</h3>
+                <PropTable props={markerProps} />
+              </div>
+
+              <div id="marker-examples">
+                <h3 style={{ fontSize: '1.5rem', marginBottom: '24px', color: '#495057' }}>Examples</h3>
+                {examplesByCategory.Marker?.map((example) => (
+                  <Example
+                    key={example.id}
+                    example={example}
+                    accessToken={MAPBOX_ACCESS_TOKEN}
+                  />
+                ))}
+              </div>
+            </section>
+
+            {/* Popup Documentation */}
+            <section id="popup">
+              <SectionHeader 
+                title="💬 Popup Component" 
+                description="Display interactive popups with flexible positioning"
+              />
+              
+              <div id="popup-props">
+                <h3 style={{ fontSize: '1.5rem', marginBottom: '16px', color: '#495057' }}>Props Reference</h3>
+                <PropTable props={popupProps} />
+              </div>
+
+              <div style={{
+                padding: '20px',
+                backgroundColor: '#fff3cd',
+                border: '1px solid #ffeaa7',
+                borderRadius: '8px',
+                marginBottom: '24px',
+                borderLeft: '4px solid #f39c12'
+              }}>
+                <h4 style={{ margin: '0 0 8px 0', color: '#8a6d3b', display: 'flex', alignItems: 'center' }}>
+                  <span style={{ marginRight: '8px' }}>💡</span>
+                  Automatic Popup Management
+                </h4>
+                <p style={{ margin: 0, color: '#8a6d3b' }}>
+                  Simply add a Popup as a child of any Marker. No state management, no event handlers, no complexity!
+                  The library automatically handles show/hide on marker clicks.
+                </p>
+              </div>
+            </section>
+
+            {/* CircleMarker Documentation */}
+            <section id="circlemarker">
+              <SectionHeader 
+                title="⭕ CircleMarker Component" 
+                description="Circular markers with customizable styling"
+              />
+              
+              <div id="circlemarker-props">
+                <h3 style={{ fontSize: '1.5rem', marginBottom: '16px', color: '#495057' }}>Props Reference</h3>
+                <PropTable props={circleMarkerProps} />
+              </div>
+
+              <div style={{
+                padding: '20px',
+                backgroundColor: '#d1ecf1',
+                border: '1px solid #bee5eb',
+                borderRadius: '8px',
+                marginBottom: '24px',
+                borderLeft: '4px solid #17a2b8'
+              }}>
+                <p style={{ margin: 0, color: '#0c5460' }}>
+                  <strong>Note:</strong> CircleMarker examples will be available in the next update.
+                  For now, check out Marker examples which demonstrate similar functionality.
+                </p>
+              </div>
+            </section>
+
+            {/* Key Features */}
+            <section id="features">
+              <SectionHeader 
+                title="✨ Key Features" 
+                description="What makes Mapbox Static React special"
+              />
+              
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                gap: '24px',
+                marginBottom: '32px'
+              }}>
+                <div style={{
+                  padding: '24px',
+                  backgroundColor: '#f8f9fa',
+                  borderRadius: '8px',
+                  border: '1px solid #e9ecef'
+                }}>
+                  <h4 style={{ color: '#28a745', marginBottom: '12px' }}>🚀 Zero Configuration</h4>
+                  <p style={{ margin: 0, color: '#495057' }}>
+                    No complex setup or configuration. Import, use, and get beautiful maps instantly.
+                  </p>
+                </div>
+                
+                <div style={{
+                  padding: '24px',
+                  backgroundColor: '#f8f9fa',
+                  borderRadius: '8px',
+                  border: '1px solid #e9ecef'
+                }}>
+                  <h4 style={{ color: '#17a2b8', marginBottom: '12px' }}>🎯 Smart Popup Management</h4>
+                  <p style={{ margin: 0, color: '#495057' }}>
+                    Automatic show/hide functionality. Just nest Popup components inside Markers.
+                  </p>
+                </div>
+                
+                <div style={{
+                  padding: '24px',
+                  backgroundColor: '#f8f9fa',
+                  borderRadius: '8px',
+                  border: '1px solid #e9ecef'
+                }}>
+                  <h4 style={{ color: '#6610f2', marginBottom: '12px' }}>📱 Mobile Responsive</h4>
+                  <p style={{ margin: 0, color: '#495057' }}>
+                    Built with mobile-first design. Maps look great on any device.
+                  </p>
+                </div>
+                
+                <div style={{
+                  padding: '24px',
+                  backgroundColor: '#f8f9fa',
+                  borderRadius: '8px',
+                  border: '1px solid #e9ecef'
+                }}>
+                  <h4 style={{ color: '#dc3545', marginBottom: '12px' }}>🔧 TypeScript Support</h4>
+                  <p style={{ margin: 0, color: '#495057' }}>
+                    Full TypeScript definitions included. Get autocomplete and type safety.
+                  </p>
+                </div>
+                
+                <div style={{
+                  padding: '24px',
+                  backgroundColor: '#f8f9fa',
+                  borderRadius: '8px',
+                  border: '1px solid #e9ecef'
+                }}>
+                  <h4 style={{ color: '#fd7e14', marginBottom: '12px' }}>⚡ High Performance</h4>
+                  <p style={{ margin: 0, color: '#495057' }}>
+                    Static map generation with optimized rendering for fast loading.
+                  </p>
+                </div>
+                
+                <div style={{
+                  padding: '24px',
+                  backgroundColor: '#f8f9fa',
+                  borderRadius: '8px',
+                  border: '1px solid #e9ecef'
+                }}>
+                  <h4 style={{ color: '#20c997', marginBottom: '12px' }}>🎨 Highly Customizable</h4>
+                  <p style={{ margin: 0, color: '#495057' }}>
+                    Custom markers, styles, colors, and overlays. Make it your own.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            {/* Support Section */}
+            <section id="support">
+              <SectionHeader 
+                title="🤝 Support & Community" 
+                description="Get help and contribute to the project"
+              />
+              
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                gap: '20px'
+              }}>
+                <div style={{
+                  padding: '20px',
+                  backgroundColor: '#e8f5e8',
+                  borderRadius: '8px',
+                  textAlign: 'center',
+                  border: '1px solid #c3e6c3'
+                }}>
+                  <h4 style={{ color: '#155724', marginBottom: '12px' }}>📖 Documentation</h4>
+                  <p style={{ margin: '0 0 16px 0', color: '#155724' }}>You're reading it!</p>
+                  <span style={{ color: '#6c757d', fontSize: '0.9rem' }}>Complete API reference and examples</span>
+                </div>
+                
+                <div style={{
+                  padding: '20px',
+                  backgroundColor: '#d1ecf1',
+                  borderRadius: '8px',
+                  textAlign: 'center',
+                  border: '1px solid #bee5eb'
+                }}>
+                  <h4 style={{ color: '#0c5460', marginBottom: '12px' }}>🐛 Issues</h4>
+                  <p style={{ margin: '0 0 16px 0', color: '#0c5460' }}>Found a bug?</p>
+                  <span style={{ color: '#6c757d', fontSize: '0.9rem' }}>Report it on GitHub Issues</span>
+                </div>
+                
+                <div style={{
+                  padding: '20px',
+                  backgroundColor: '#fff3cd',
+                  borderRadius: '8px',
+                  textAlign: 'center',
+                  border: '1px solid #ffeaa7'
+                }}>
+                  <h4 style={{ color: '#8a6d3b', marginBottom: '12px' }}>💡 Feature Requests</h4>
+                  <p style={{ margin: '0 0 16px 0', color: '#8a6d3b' }}>Have an idea?</p>
+                  <span style={{ color: '#6c757d', fontSize: '0.9rem' }}>Share it with the community</span>
+                </div>
+              </div>
+            </section>
+
+            {/* Footer */}
+            <footer style={{
+              marginTop: '80px',
+              padding: '40px 0',
+              borderTop: '1px solid #e9ecef',
+              textAlign: 'center',
+              color: '#6c757d'
+            }}>
+              <p style={{ margin: '0 0 16px 0' }}>
+                Built with ❤️ for the React and Mapbox community
+              </p>
+              <p style={{ margin: 0, fontSize: '0.9rem' }}>
+                Powered by <a href="https://mapbox.com" target="_blank" rel="noopener noreferrer" style={{ color: '#007bff' }}>Mapbox</a> • 
+                Made with <a href="https://reactjs.org" target="_blank" rel="noopener noreferrer" style={{ color: '#007bff' }}>React</a> • 
+                Written in <a href="https://www.typescriptlang.org" target="_blank" rel="noopener noreferrer" style={{ color: '#007bff' }}>TypeScript</a>
+              </p>
+            </footer>
+          </main>
+        </div>
+      </div>
+    </div>
+  );
+}

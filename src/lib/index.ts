@@ -10,7 +10,7 @@ export { useStaticMapContext, useMarkerPositionContext } from './components/cont
 
 // Type exports
 export type {
-  LatLng,
+  LngLatLike,
   Bounds,
   Size,
   StaticMapProps,

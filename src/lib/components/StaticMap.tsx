@@ -1,8 +1,47 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import type { StaticMapProps, StaticMapContextValue, LatLng, Bounds } from '../types';
+import type { StaticMapProps, StaticMapContextValue, LngLatLike, Bounds, LngLatBoundsLike } from '../types';
 import { generateStaticMapUrl } from '../utils/mapbox';
 import { latLngToPixel, calculateBoundsFromCenterZoom } from '../utils/projection';
 import { StaticMapContext } from './context';
+
+/**
+ * Normalize LngLatLike to a consistent { lng, lat } format
+ */
+function normalizeLngLat(lngLat: LngLatLike): { lng: number; lat: number } {
+  if (Array.isArray(lngLat)) {
+    return { lng: lngLat[0], lat: lngLat[1] };
+  }
+  if ('lon' in lngLat) {
+    return { lng: lngLat.lon, lat: lngLat.lat };
+  }
+  return { lng: lngLat.lng, lat: lngLat.lat };
+}
+
+/**
+ * Normalize LngLatBoundsLike to a consistent Bounds format
+ */
+function normalizeBounds(bounds: LngLatBoundsLike): Bounds {
+  if (Array.isArray(bounds)) {
+    if (bounds.length === 4 && typeof bounds[0] === 'number') {
+      // [west, south, east, north] format
+      const [west, south, east, north] = bounds as [number, number, number, number];
+      return { west, south, east, north };
+    } else {
+      // [LngLatLike, LngLatLike] format - [southwest, northeast]
+      const [sw, ne] = bounds as [LngLatLike, LngLatLike];
+      const swNorm = normalizeLngLat(sw);
+      const neNorm = normalizeLngLat(ne);
+      return {
+        west: swNorm.lng,
+        south: swNorm.lat,
+        east: neNorm.lng,
+        north: neNorm.lat
+      };
+    }
+  }
+  // Already in Bounds format
+  return bounds as Bounds;
+}
 
 export const StaticMap: React.FC<StaticMapProps> = ({
     accessToken,
@@ -30,7 +69,7 @@ export const StaticMap: React.FC<StaticMapProps> = ({
         let calculatedBounds: Bounds;
 
         if (bounds) {
-            calculatedBounds = bounds;
+            calculatedBounds = normalizeBounds(bounds);
         } else if (center && zoom !== undefined) {
             calculatedBounds = calculateBoundsFromCenterZoom(center, zoom, size);
         } else {
@@ -47,7 +86,7 @@ export const StaticMap: React.FC<StaticMapProps> = ({
             bearing,
             pitch,
             retina,
-            _attribution: attribution,
+            attribution,
             logo,
         });
 
@@ -56,7 +95,7 @@ export const StaticMap: React.FC<StaticMapProps> = ({
 
     // Coordinate conversion function
     const latLngToPixelConverted = useCallback(
-        (latLng: LatLng) => {
+        (latLng: LngLatLike) => {
             if (!calculatedBounds) return { x: 0, y: 0 };
             return latLngToPixel(latLng, calculatedBounds, size);
         },

@@ -1,4 +1,43 @@
-import type { LatLng, Bounds, Size } from '../types';
+import type { LngLatLike, Bounds, LngLatBoundsLike, Size } from '../types';
+
+/**
+ * Normalize LngLatLike to a consistent { lng, lat } format
+ */
+function normalizeLngLat(lngLat: LngLatLike): { lng: number; lat: number } {
+  if (Array.isArray(lngLat)) {
+    return { lng: lngLat[0], lat: lngLat[1] };
+  }
+  if ('lon' in lngLat) {
+    return { lng: lngLat.lon, lat: lngLat.lat };
+  }
+  return { lng: lngLat.lng, lat: lngLat.lat };
+}
+
+/**
+ * Normalize LngLatBoundsLike to a consistent Bounds format
+ */
+function normalizeBounds(bounds: LngLatBoundsLike): Bounds {
+  if (Array.isArray(bounds)) {
+    if (bounds.length === 4 && typeof bounds[0] === 'number') {
+      // [west, south, east, north] format
+      const [west, south, east, north] = bounds as [number, number, number, number];
+      return { west, south, east, north };
+    } else {
+      // [LngLatLike, LngLatLike] format - [southwest, northeast]
+      const [sw, ne] = bounds as [LngLatLike, LngLatLike];
+      const swNorm = normalizeLngLat(sw);
+      const neNorm = normalizeLngLat(ne);
+      return {
+        west: swNorm.lng,
+        south: swNorm.lat,
+        east: neNorm.lng,
+        north: neNorm.lat
+      };
+    }
+  }
+  // Already in Bounds format
+  return bounds as Bounds;
+}
 
 /**
  * Generate Mapbox Static Images API URL
@@ -18,9 +57,9 @@ export function generateStaticMapUrl({
 }: {
   accessToken: string;
   mapStyle: string;
-  center?: LatLng;
+  center?: LngLatLike;
   zoom?: number;
-  bounds?: Bounds;
+  bounds?: LngLatBoundsLike;
   size: Size;
   bearing?: number;
   pitch?: number;
@@ -37,10 +76,12 @@ export function generateStaticMapUrl({
   let position: string;
   if (center && zoom !== undefined) {
     // Use center/zoom format - more efficient and precise
-    position = `${center.lng},${center.lat},${zoom},${bearing},${pitch}`;
+    const normalizedCenter = normalizeLngLat(center);
+    position = `${normalizedCenter.lng},${normalizedCenter.lat},${zoom},${bearing},${pitch}`;
   } else if (bounds) {
     // Use bounds format
-    const { west, south, east, north } = bounds;
+    const normalizedBounds = normalizeBounds(bounds);
+    const { west, south, east, north } = normalizedBounds;
     position = `[${west},${south},${east},${north}]`;
   } else {
     throw new Error('Either bounds or center+zoom must be provided');

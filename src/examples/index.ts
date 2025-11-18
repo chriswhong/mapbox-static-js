@@ -2,20 +2,36 @@ import type { ExampleDefinition } from './types';
 import { parseJSDocFromCode, extractComponentCode } from './jsDocParser';
 
 // Import all example components (no more manual code strings!)
+import { QuickStartExample } from './QuickStart';
 import { BasicUsageExample } from './BasicUsage';
 import { SatelliteViewExample } from './SatelliteView';
 import { MapStylesGridExample } from './MapStylesGrid';
 import { Advanced3DMapExample } from './Advanced3DMap';
 import { AutomaticPopupsExample } from './AutomaticPopups';
 import { ZillowStyleMarkersExample } from './ZillowStyleMarkers';
+import { BasicPopupExample } from './BasicPopup';
+import { RichContentPopupExample } from './RichContentPopup';
+import { MultiplePopupsExample } from './MultiplePopups';
+import { BasicCircleMarkerExample } from './BasicCircleMarker';
+import { DataVisualizationExample } from './DataVisualization';
+import { CircleMarkerPopupsExample } from './CircleMarkerPopups';
+import { BoundsExampleExample } from './BoundsExample';
 
 // Raw source code for JSDoc parsing (in a real app, this could be done at build time)
+import QuickStartSource from './QuickStart.tsx?raw';
 import BasicUsageSource from './BasicUsage.tsx?raw';
 import SatelliteViewSource from './SatelliteView.tsx?raw';
 import MapStylesGridSource from './MapStylesGrid.tsx?raw';
 import Advanced3DMapSource from './Advanced3DMap.tsx?raw';
 import AutomaticPopupsSource from './AutomaticPopups.tsx?raw';
 import ZillowStyleMarkersSource from './ZillowStyleMarkers.tsx?raw';
+import BasicPopupSource from './BasicPopup.tsx?raw';
+import RichContentPopupSource from './RichContentPopup.tsx?raw';
+import MultiplePopupsSource from './MultiplePopups.tsx?raw';
+import BasicCircleMarkerSource from './BasicCircleMarker.tsx?raw';
+import DataVisualizationSource from './DataVisualization.tsx?raw';
+import CircleMarkerPopupsSource from './CircleMarkerPopups.tsx?raw';
+import BoundsExampleSource from './BoundsExample.tsx?raw';
 
 /**
  * Helper function to create an example with metadata and code extracted from JSDoc comments
@@ -42,8 +58,12 @@ function createExampleFromSource(
 
 // Define all examples with metadata and code automatically extracted from source files
 export const examples: ExampleDefinition[] = [
+  // Quick Start Example
+  createExampleFromSource('quick-start', QuickStartExample, QuickStartSource),
+  
   // StaticMap Examples
   createExampleFromSource('basic-usage', BasicUsageExample, BasicUsageSource),
+  createExampleFromSource('bounds-example', BoundsExampleExample, BoundsExampleSource),
   createExampleFromSource('satellite-view', SatelliteViewExample, SatelliteViewSource),
   createExampleFromSource('map-styles-grid', MapStylesGridExample, MapStylesGridSource),
   createExampleFromSource('advanced-3d-map', Advanced3DMapExample, Advanced3DMapSource),
@@ -51,6 +71,16 @@ export const examples: ExampleDefinition[] = [
   // Marker Examples
   createExampleFromSource('automatic-popups', AutomaticPopupsExample, AutomaticPopupsSource),
   createExampleFromSource('zillow-style-markers', ZillowStyleMarkersExample, ZillowStyleMarkersSource),
+
+  // Popup Examples
+  createExampleFromSource('basic-popup', BasicPopupExample, BasicPopupSource),
+  createExampleFromSource('rich-content-popup', RichContentPopupExample, RichContentPopupSource),
+  createExampleFromSource('multiple-popups', MultiplePopupsExample, MultiplePopupsSource),
+
+  // CircleMarker Examples
+  createExampleFromSource('basic-circle-marker', BasicCircleMarkerExample, BasicCircleMarkerSource),
+  createExampleFromSource('data-visualization', DataVisualizationExample, DataVisualizationSource),
+  createExampleFromSource('circle-marker-popups', CircleMarkerPopupsExample, CircleMarkerPopupsSource),
 ];
 
 // Group examples by category

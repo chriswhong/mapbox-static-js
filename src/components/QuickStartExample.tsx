@@ -4,23 +4,18 @@ import { javascript } from '@codemirror/lang-javascript';
 import { oneDark } from '@codemirror/theme-one-dark';
 import type { ExampleDefinition } from '../examples/types';
 
-interface ExampleProps {
+interface QuickStartExampleProps {
   example: ExampleDefinition;
   accessToken: string;
 }
 
-export const Example: React.FC<ExampleProps> = ({ example, accessToken }) => {
+export const QuickStartExampleComponent: React.FC<QuickStartExampleProps> = ({ example, accessToken }) => {
   const { title, description, component: Component, code } = example;
-  const [isCodeExpanded, setIsCodeExpanded] = React.useState(false);
+  const [isCodeExpanded, setIsCodeExpanded] = React.useState(true); // Start expanded
   const [isCopied, setIsCopied] = React.useState(false);
   
-  // Calculate lines to show (aim for ~6 lines when collapsed)
-  const codeLines = code.split('\n');
-  const maxCollapsedLines = 6;
-  const shouldShowExpandButton = codeLines.length > maxCollapsedLines;
-  const displayedCode = isCodeExpanded 
-    ? code 
-    : codeLines.slice(0, maxCollapsedLines).join('\n');
+  // For quick start, we show all code by default but still provide collapse option
+  const shouldShowButton = true; // Always show button for consistency
 
   const copyToClipboard = async () => {
     try {
@@ -88,7 +83,7 @@ export const Example: React.FC<ExampleProps> = ({ example, accessToken }) => {
           
           <div className="bg-gray-900 text-white overflow-x-auto">
             <CodeMirror
-              value={displayedCode}
+              value={code}
               theme={oneDark}
               extensions={[javascript({ jsx: true })]}
               editable={false}
@@ -101,11 +96,11 @@ export const Example: React.FC<ExampleProps> = ({ example, accessToken }) => {
                 searchKeymap: false
               }}
               className="text-sm font-mono max-w-full"
-              style={isCodeExpanded && shouldShowExpandButton ? { paddingBottom: '60px' } : undefined}
+              style={!isCodeExpanded && shouldShowButton ? { maxHeight: '200px', overflow: 'hidden' } : undefined}
             />
             
             {/* Expand/Collapse Button */}
-            {shouldShowExpandButton && (
+            {shouldShowButton && (
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent pt-6 pb-3 flex justify-center">
                 <button
                   onClick={() => setIsCodeExpanded(!isCodeExpanded)}

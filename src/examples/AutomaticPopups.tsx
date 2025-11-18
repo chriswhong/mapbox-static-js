@@ -2,7 +2,7 @@ import React from 'react';
 import { StaticMap, Marker, Popup } from '../lib';
 
 /**
- * @title Automatic Popup Management (NEW!)
+ * @title Automatic Popup Management
  * @description The new pattern: simply add a Popup as a child of a Marker - no state management required!
  * @category Marker
  * @difficulty beginner
