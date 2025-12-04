@@ -4,7 +4,6 @@ import { StaticMap, CircleMarker, Popup } from '../lib';
  * @title Circle Markers with Popups
  * @description Interactive circle markers that show detailed information on click
  * @category CircleMarker
- * @difficulty intermediate
  */
 export function CircleMarkerPopupsExample({ accessToken }: { accessToken: string }) {
   const weatherStations = [

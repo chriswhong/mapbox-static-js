@@ -4,7 +4,6 @@ import { StaticMap, CircleMarker } from '../lib';
  * @title Data Visualization
  * @description Circle markers representing data points with size based on values
  * @category CircleMarker
- * @difficulty intermediate
  */
 export function DataVisualizationExample({ accessToken }: { accessToken: string }) {
   const earthquakeData = [

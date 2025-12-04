@@ -5,7 +5,6 @@ import { StaticMap } from '../lib';
  * @title Basic Usage
  * @description Simple map with center coordinates and zoom level
  * @category StaticMap
- * @difficulty beginner
  */
 export function BasicUsageExample({ accessToken }: { accessToken: string }) {
   return (

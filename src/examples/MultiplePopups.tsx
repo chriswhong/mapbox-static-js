@@ -4,7 +4,6 @@ import { StaticMap, Marker, Popup } from '../lib';
  * @title Multiple Popups
  * @description Multiple markers each with their own popup content
  * @category Popup
- * @difficulty intermediate
  */
 export function MultiplePopupsExample({ accessToken }: { accessToken: string }) {
   const restaurants = [

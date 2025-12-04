@@ -5,7 +5,6 @@ import { StaticMap, Marker } from '../lib';
  * @title Real Estate Finder
  * @description Interactive property listings with hover effects and price displays
  * @category Marker
- * @difficulty advanced
  */
 export function ZillowStyleMarkersExample({ accessToken }: { accessToken: string }) {
   return (

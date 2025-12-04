@@ -5,7 +5,6 @@ import { StaticMap } from '../lib';
  * @title Satellite View
  * @description High-resolution satellite imagery perfect for geographical analysis
  * @category StaticMap
- * @difficulty beginner
  */
 export function SatelliteViewExample({ accessToken }: { accessToken: string }) {
   return (

@@ -5,7 +5,6 @@ import { Example } from '../components/Example';
  * @title Bounds Example
  * @description Use bounds to define the map area instead of center and zoom. This example shows Montgomery County, Maryland using southwest/northeast coordinate pairs.
  * @category StaticMap
- * @difficulty beginner
  */
 export function BoundsExampleExample({ accessToken }: { accessToken: string }) {
   return (

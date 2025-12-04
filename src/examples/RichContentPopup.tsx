@@ -4,7 +4,6 @@ import { StaticMap, Marker, Popup } from '../lib';
  * @title Rich Content Popup
  * @description Popup with images, links, and formatted content
  * @category Popup
- * @difficulty intermediate
  */
 export function RichContentPopupExample({ accessToken }: { accessToken: string }) {
   return (

@@ -5,7 +5,6 @@ import { StaticMap, Marker, Popup } from '../lib';
  * @title Automatic Popup Management
  * @description The new pattern: simply add a Popup as a child of a Marker - no state management required!
  * @category Marker
- * @difficulty beginner
  */
 export function AutomaticPopupsExample({ accessToken }: { accessToken: string }) {
   return (

@@ -4,7 +4,6 @@ import { StaticMap, CircleMarker } from '../lib';
  * @title Basic Circle Markers
  * @description Simple circle markers with different sizes and colors
  * @category CircleMarker
- * @difficulty beginner
  */
 export function BasicCircleMarkerExample({ accessToken }: { accessToken: string }) {
   return (

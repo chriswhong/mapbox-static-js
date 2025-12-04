@@ -5,7 +5,6 @@ export interface JSDocMetadata {
   title: string;
   description: string;
   category: string;
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
 }
 
 export function parseJSDocFromCode(code: string): JSDocMetadata | null {
@@ -21,9 +20,8 @@ export function parseJSDocFromCode(code: string): JSDocMetadata | null {
   const titleMatch = jsDocContent.match(/@title\s+(.+)/);
   const descriptionMatch = jsDocContent.match(/@description\s+(.+)/);
   const categoryMatch = jsDocContent.match(/@category\s+(.+)/);
-  const difficultyMatch = jsDocContent.match(/@difficulty\s+(beginner|intermediate|advanced)/);
 
-  if (!titleMatch || !descriptionMatch || !categoryMatch || !difficultyMatch) {
+  if (!titleMatch || !descriptionMatch || !categoryMatch) {
     console.warn('Incomplete JSDoc metadata found');
     return null;
   }
@@ -31,8 +29,7 @@ export function parseJSDocFromCode(code: string): JSDocMetadata | null {
   return {
     title: titleMatch[1].trim(),
     description: descriptionMatch[1].trim(),
-    category: categoryMatch[1].trim(),
-    difficulty: difficultyMatch[1].trim() as 'beginner' | 'intermediate' | 'advanced'
+    category: categoryMatch[1].trim()
   };
 }
 

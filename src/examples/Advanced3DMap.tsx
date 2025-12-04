@@ -5,7 +5,6 @@ import { StaticMap } from '../lib';
  * @title Advanced Map with Pitch and Rotation
  * @description 3D perspective map with custom pitch, rotation, and high zoom for dramatic effect
  * @category StaticMap
- * @difficulty advanced
  */
 export function Advanced3DMapExample({ accessToken }: { accessToken: string }) {
   return (

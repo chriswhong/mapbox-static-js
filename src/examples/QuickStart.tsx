@@ -5,7 +5,6 @@ import { StaticMap, Marker, Popup } from '../lib';
  * @title Quick Start
  * @description A complete example to get you started with Mapbox Static React
  * @category LandingPage
- * @difficulty beginner
  */
 export function QuickStartExample({ accessToken }: { accessToken: string }) {
   return (

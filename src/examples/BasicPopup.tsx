@@ -4,7 +4,6 @@ import { StaticMap, Marker, Popup } from '../lib';
  * @title Basic Popup
  * @description Simple popup with text content displayed on marker click
  * @category Popup
- * @difficulty beginner
  */
 export function BasicPopupExample({ accessToken }: { accessToken: string }) {
   return (

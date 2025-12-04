@@ -5,7 +5,6 @@ import { StaticMap } from '../lib';
  * @title Different Map Styles
  * @description Showcase different Mapbox map styles in a grid layout
  * @category StaticMap
- * @difficulty beginner
  */
 export function MapStylesGridExample({ accessToken }: { accessToken: string }) {
   return (
