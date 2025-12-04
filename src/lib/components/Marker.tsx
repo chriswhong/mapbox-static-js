@@ -28,12 +28,6 @@ const DefaultMarkerIcon: React.FC<{
             <stop offset="10%" stopOpacity="0.4" />
             <stop offset="100%" stopOpacity="0.05" />
           </radialGradient>
-          
-          {/* Main marker gradient for depth */}
-          <linearGradient id="markerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor={color} />
-            <stop offset="100%" stopColor={`${color}dd`} />
-          </linearGradient>
         </defs>
         
         {/* Drop shadow ellipse */}
@@ -60,7 +54,7 @@ const DefaultMarkerIcon: React.FC<{
               C ${markerSize*0.9} ${markerSize*0.55}
                 ${markerSize/2 + markerSize*0.35} ${markerSize - markerSize*0.4}
                 ${markerSize/2} ${markerSize} Z`}
-          fill="url(#markerGradient)"
+          fill={color}
           stroke="#fff"
           strokeWidth="2"
           filter="drop-shadow(0 2px 4px rgba(0,0,0,0.2))"

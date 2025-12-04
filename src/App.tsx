@@ -52,6 +52,11 @@ export default function App() {
           <p className="text-lg md:text-2xl mb-8 opacity-95 max-w-4xl mx-auto leading-relaxed">
             A React library for creating beautiful static maps with markers and popups. <br/>Powered by the Mapbox Static Images API.
           </p>
+          <div className="bg-yellow-400 text-yellow-900 px-6 py-3 rounded-lg mb-6 max-w-2xl mx-auto">
+            <p className="text-sm font-semibold">
+              ⚠️ Experimental: This is not published to NPM and is under active development
+            </p>
+          </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a 
               href="#installation" 
